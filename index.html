@@ -927,71 +927,19 @@ footer {
 <!-- JAVASCRIPT DU RESTAURANT : SYNCHRONISATION 100% SUPABASE   -->
 <!-- ========================================================== -->
 <script>
+
+
 const SUPABASE_URL = "https://ysbyguyriolctlgdcbsq.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_uM__1eHFTHAd21_iCjYDJg_AJ0ul45t";
 const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
 
 const DEFAULT_DISHES = [
-  {
-    id: "d-1",
-    name: "Tigadèguèna (Sauce Arachide)",
-    cat: "Plats maliens",
-    price: 3500,
-    emoji: "🍛",
-    photo: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80",
-    desc: "Sauce onctueuse à la pâte d'arachide avec viande de bœuf tendre, servie avec du riz blanc de Baguineda.",
-    available: true
-  },
-  {
-    id: "d-2",
-    name: "Fakoye du Nord",
-    cat: "Plats maliens",
-    price: 4000,
-    emoji: "🍲",
-    photo: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=600&q=80",
-    desc: "Spécialité songhaï avec corète potagère séchée, viande de mouton fondante et épices de Tombouctou.",
-    available: true
-  },
-  {
-    id: "d-3",
-    name: "Riz au Gras Malien (Zaamin)",
-    cat: "Plats maliens",
-    price: 3000,
-    emoji: "🍚",
-    photo: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=600&q=80",
-    desc: "Riz mijoté dans un bouillon savoureux de viande et légumes frais, carottes croquantes et chou.",
-    available: true
-  },
-  {
-    id: "d-4",
-    name: "Dibi d'Agneau de Bamako",
-    cat: "Grillades",
-    price: 4500,
-    emoji: "🥩",
-    photo: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80",
-    desc: "Agneau grillé au feu de bois façon Kati, servi avec oignons marinés, piment doux et moutarde.",
-    available: true
-  },
-  {
-    id: "d-5",
-    name: "Alloco Doré",
-    cat: "Accompagnements",
-    price: 1000,
-    emoji: "🍌",
-    photo: "https://images.unsplash.com/photo-1528751014936-863e6e7a319c?auto=format&fit=crop&w=600&q=80",
-    desc: "Bananes plantains mûres découpées et dorées à point, croustillantes à l'extérieur et moelleuses.",
-    available: true
-  },
-  {
-    id: "d-6",
-    name: "Jus de Bissap Maison",
-    cat: "Boissons",
-    price: 800,
-    emoji: "🥤",
-    photo: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80",
-    desc: "Fleurs d'hibiscus rouge infusées avec menthe fraîche du jardin et essence de vanille.",
-    available: true
-  }
+  { id: "d-1", name: "Tigadèguèna (Sauce Arachide)", cat: "Plats maliens", price: 3500, emoji: "🍛", photo: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80", desc: "Sauce onctueuse à la pâte d'arachide avec viande de bœuf tendre, servie avec du riz blanc de Baguineda.", available: true },
+  { id: "d-2", name: "Fakoye du Nord", cat: "Plats maliens", price: 4000, emoji: "🍲", photo: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=600&q=80", desc: "Spécialité songhaï avec corète potagère séchée, viande de mouton fondante et épices de Tombouctou.", available: true },
+  { id: "d-3", name: "Riz au Gras Malien (Zaamin)", cat: "Plats maliens", price: 3000, emoji: "🍚", photo: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=600&q=80", desc: "Riz mijoté dans un bouillon savoureux de viande et légumes frais, carottes et chou.", available: true },
+  { id: "d-4", name: "Dibi d'Agneau de Bamako", cat: "Grillades", price: 4500, emoji: "🥩", photo: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80", desc: "Agneau grillé au feu de bois façon Kati, servi avec oignons marinés et piment doux.", available: true },
+  { id: "d-5", name: "Alloco Doré", cat: "Accompagnements", price: 1000, emoji: "🍌", photo: "https://images.unsplash.com/photo-1528751014936-863e6e7a319c?auto=format&fit=crop&w=600&q=80", desc: "Bananes plantains mûres découpées et dorées à point, croustillantes et moelleuses.", available: true },
+  { id: "d-6", name: "Jus de Bissap Maison", cat: "Boissons", price: 800, emoji: "🥤", photo: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80", desc: "Fleurs d'hibiscus rouge infusées avec menthe fraîche du jardin et vanille.", available: true }
 ];
 
 let dishes = loadStorage("dfc_dishes", DEFAULT_DISHES);
@@ -1001,13 +949,14 @@ let bookings = loadStorage("dfc_bookings", []);
 let isManager = loadStorage("dfc_is_manager", false);
 let currentCategory = "Tous";
 let currentUploadedPhotoBase64 = "";
+let currentAdminTab = 'dishes';
 
 function loadStorage(k, fallback){
-  try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; }
+  try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; }
   catch(e){ return fallback; }
 }
 function saveStorage(k, v){
-  try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){}
+  try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){}
 }
 function money(n){
   return new Intl.NumberFormat("fr-FR").format(n) + " FCFA";
@@ -1019,7 +968,7 @@ function toast(msg){
   setTimeout(()=>t.classList.remove("active"), 2800);
 }
 
-// 🔄 Synchronisation avec Supabase
+// 🔄 SYNCHRONISATION SUPABASE
 async function syncDishesFromSupabase(){
   if(!supabaseClient) return;
   try {
@@ -1028,7 +977,9 @@ async function syncDishesFromSupabase(){
       .select("*")
       .order("created_at", { ascending: false });
 
-    if(!error && data && data.length > 0){
+    if(error){ console.warn("Supabase dishes:", error); return; }
+
+    if(data && data.length > 0){
       dishes = data.map(row => ({
         id: String(row.id),
         name: row.name,
@@ -1042,10 +993,20 @@ async function syncDishesFromSupabase(){
       saveStorage("dfc_dishes", dishes);
       renderClientMenu();
       if(currentAdminTab === 'dishes') renderAdmin();
+    } else if(data && data.length === 0){
+      const seedRows = DEFAULT_DISHES.map(d => ({
+        id: d.id, name: d.name, category: d.cat, price: d.price,
+        description: d.desc, emoji: d.emoji, photo_url: d.photo, available: true
+      }));
+      await supabaseClient.from("menu_items").upsert(seedRows);
+      const { data: s } = await supabaseClient.from("menu_items").select("*").order("created_at", { ascending: false });
+      if(s && s.length){
+        dishes = s.map(r => ({ id: String(r.id), name: r.name, cat: r.category||'Plats maliens', price: Number(r.price||0), emoji: r.emoji||'🍽️', photo: r.photo_url||'', desc: r.description||'', available: r.available!==false }));
+        saveStorage("dfc_dishes", dishes);
+        renderClientMenu();
+      }
     }
-  } catch(err){
-    console.warn("Sync dishes:", err);
-  }
+  } catch(err){ console.warn("Sync dishes err:", err); }
 }
 
 async function syncOrdersFromSupabase(){
@@ -1072,9 +1033,7 @@ async function syncOrdersFromSupabase(){
       saveStorage("dfc_orders", orders);
       renderAdmin();
     }
-  } catch(err){
-    console.warn("Sync orders:", err);
-  }
+  } catch(err){ console.warn("Sync orders err:", err); }
 }
 
 async function syncBookingsFromSupabase(){
@@ -1100,9 +1059,7 @@ async function syncBookingsFromSupabase(){
       saveStorage("dfc_bookings", bookings);
       renderAdmin();
     }
-  } catch(err){
-    console.warn("Sync bookings:", err);
-  }
+  } catch(err){ console.warn("Sync bookings err:", err); }
 }
 
 function initSupabaseRealtime(){
@@ -1124,14 +1081,17 @@ function initSupabaseRealtime(){
       .subscribe();
   } catch(e){}
 
+  // Actualisation toutes les 5 secondes pour tous les téléphones (clients & gérant)
   setInterval(() => {
+    syncDishesFromSupabase();
     if(isManager && document.getElementById("adminView").classList.contains("active")){
       syncOrdersFromSupabase();
       syncBookingsFromSupabase();
     }
-  }, 7000);
+  }, 5000);
 }
 
+// 🧭 NAVIGATION
 function showView(view){
   const btnNavHome = document.getElementById("btnNavHome");
   const btnNavMenu = document.getElementById("btnNavMenu");
@@ -1156,6 +1116,7 @@ function showView(view){
     document.getElementById("clientView").style.display = "block";
     document.getElementById("heroSection").style.display = (view==='home' ? "grid" : "none");
     document.getElementById("menuTitle").textContent = (view==='home' ? "Nos Plats Disponibles" : "Notre Menu Complet");
+    syncDishesFromSupabase();
     renderClientMenu();
   }
   window.scrollTo({top:0, behavior:"smooth"});
@@ -1190,7 +1151,7 @@ function renderClientMenu(){
   const grid = document.getElementById("dishesGrid");
 
   if(!list.length){
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)">Aucun plat disponible pour le moment.</div>';
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted)">Aucun plat disponible pour le moment.</div>';
     return;
   }
 
@@ -1207,7 +1168,7 @@ function renderClientMenu(){
         </div>
         <div class="cardBottom">
           <span class="price">${money(d.price)}</span>
-          <button class="btn btnPrimary" style="padding:7px 12px;font-size:12px" onclick="addToCart('${d.id}')">+ Ajouter</button>
+          <button class="btn btnPrimary" style="padding:6px 12px;font-size:12px" onclick="addToCart('${d.id}')">+ Ajouter</button>
         </div>
       </div>
     </article>
@@ -1245,33 +1206,30 @@ function updateCartBadges(){
 function renderCart(){
   const box = document.getElementById("cartList");
   if(!cart.length){
-    box.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Votre panier est vide.</div>';
+    box.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted)">Votre panier est vide.</div>';
     document.getElementById("cartTotalPrice").textContent = "0 FCFA";
     return;
   }
-
   let total = 0;
   box.innerHTML = cart.map(item=>{
-    const d = dishes.find(x=>String(x.id)===String(item.id));
-    if(!d) return '';
+    const d = dishes.find(x=>String(x.id)===String(item.id)) || {name:"Plat", price:0};
     const sub = d.price * item.qty;
     total += sub;
     return `
       <div class="cartItem">
         <div>
           <b>${d.name}</b><br>
-          <small style="color:var(--muted)">${money(d.price)} × ${item.qty} = ${money(sub)}</small>
+          <small style="color:var(--muted)">${money(d.price)} × ${item.qty} = <b>${money(sub)}</b></small>
         </div>
         <div class="cartQty">
-          <button class="qtyBtn" onclick="changeQty('${d.id}', -1)">−</button>
+          <button class="qtyBtn" onclick="changeQty('${item.id}', -1)">-</button>
           <b>${item.qty}</b>
-          <button class="qtyBtn" onclick="changeQty('${d.id}', 1)">+</button>
-          <button style="background:none;color:var(--red);font-weight:900;margin-left:8px" onclick="removeCart('${d.id}')">✕</button>
+          <button class="qtyBtn" onclick="changeQty('${item.id}', 1)">+</button>
+          <button style="background:none;color:var(--red);margin-left:6px;font-weight:800" onclick="removeCart('${item.id}')">✕</button>
         </div>
       </div>
     `;
   }).join("");
-
   document.getElementById("cartTotalPrice").textContent = money(total);
 }
 
@@ -1298,6 +1256,7 @@ function openCheckout(){
   openModal('checkoutModal');
 }
 
+// 📦 COMMANDE CLIENT (SUPABASE + WHATSAPP)
 async function submitClientOrder(e){
   e.preventDefault();
   const btn = document.getElementById("btnSubmitOrder");
@@ -1321,35 +1280,23 @@ async function submitClientOrder(e){
   const newOrder = {
     id: orderId,
     date: new Date().toLocaleString("fr-FR"),
-    name, phone, type, pay, note,
-    items, total,
+    name, phone, type, pay, note, items, total,
     status: "Nouvelle"
   };
 
-  // 1. Sauvegarde dans SUPABASE
   if(supabaseClient){
     try {
       await supabaseClient.from("orders").insert({
-        id: orderId,
-        client_name: name,
-        client_phone: phone,
-        order_type: type,
-        payment_method: pay,
-        delivery_address: note,
-        items: items,
-        total_amount: total,
-        status: "Nouvelle"
+        id: orderId, client_name: name, client_phone: phone,
+        order_type: type, payment_method: pay, delivery_address: note,
+        items: items, total_amount: total, status: "Nouvelle"
       });
-    } catch(err){
-      console.error(err);
-    }
+    } catch(err){ console.error(err); }
   }
 
-  // 2. Cache local
   orders.unshift(newOrder);
   saveStorage("dfc_orders", orders);
 
-  // 3. WhatsApp
   const itemsList = items.map(i=>`• ${i.qty}x ${i.name} (${money(i.price*i.qty)})`).join("\n");
   const waMsg = `*COMMANDE DUGUKLA FOOD CLUB (${orderId})*\n\n`+
     `👤 *Client :* ${name}\n`+
@@ -1366,15 +1313,13 @@ async function submitClientOrder(e){
   saveStorage("dfc_cart", cart);
   updateCartBadges();
   closeModal('checkoutModal');
-  toast(`Commande ${orderId} validée et enregistrée ! ✅`);
+  toast(`Commande ${orderId} transmise au restaurant ! ✅`);
 
   if(btn){ btn.disabled = false; btn.textContent = "✅ Confirmer la commande"; }
-
-  setTimeout(() => {
-    window.open(waUrl, "_blank");
-  }, 300);
+  setTimeout(() => window.open(waUrl, "_blank"), 300);
 }
 
+// 📅 RÉSERVATION CLIENT (SUPABASE + WHATSAPP)
 async function submitClientBooking(e){
   e.preventDefault();
   const btn = document.getElementById("btnSubmitBooking");
@@ -1389,34 +1334,23 @@ async function submitClientBooking(e){
 
   const bookingId = "RES-" + Date.now().toString().slice(-4);
   const newBooking = {
-    id: bookingId,
-    name, phone, date, time, people, note,
-    status: "En attente",
-    created_at: new Date().toLocaleString("fr-FR")
+    id: bookingId, name, phone, date, time, people, note,
+    status: "En attente", created_at: new Date().toLocaleString("fr-FR")
   };
 
-  // 1. Sauvegarde dans SUPABASE
   if(supabaseClient){
     try {
       await supabaseClient.from("bookings").insert({
-        id: bookingId,
-        client_name: name,
-        client_phone: phone,
-        booking_date: date,
-        booking_time: time,
-        people_count: Number(people),
-        special_request: note,
-        status: "En attente"
+        id: bookingId, client_name: name, client_phone: phone,
+        booking_date: date, booking_time: time, people_count: Number(people),
+        special_request: note, status: "En attente"
       });
-    } catch(err){
-      console.error(err);
-    }
+    } catch(err){ console.error(err); }
   }
 
   bookings.unshift(newBooking);
   saveStorage("dfc_bookings", bookings);
 
-  // 2. WhatsApp
   const waMsg = `*RÉSERVATION DE TABLE (${bookingId})*\n\n`+
     `👤 *Nom :* ${name}\n`+
     `📞 *Téléphone :* ${phone}\n`+
@@ -1428,14 +1362,11 @@ async function submitClientBooking(e){
 
   closeModal('bookingModal');
   toast(`Réservation ${bookingId} enregistrée ! 📅`);
-
   if(btn){ btn.disabled = false; btn.textContent = "📅 Valider la réservation"; }
-
-  setTimeout(() => {
-    window.open(waUrl, "_blank");
-  }, 300);
+  setTimeout(() => window.open(waUrl, "_blank"), 300);
 }
 
+// 🔐 CONNEXION DU GÉRANT
 async function handleLoginSubmit(e){
   e.preventDefault();
   const u = document.getElementById("loginUser").value.trim().toLowerCase();
@@ -1467,7 +1398,6 @@ async function handleLoginSubmit(e){
       }
     } catch(err){}
   }
-
   toast("Identifiants incorrects.");
 }
 
@@ -1479,7 +1409,6 @@ function adminLogout(){
   toast("Déconnexion réussie.");
 }
 
-let currentAdminTab = 'dishes';
 function switchAdminTab(tab, btn){
   currentAdminTab = tab;
   document.querySelectorAll(".adminTabBtn").forEach(b=>b.classList.remove("active"));
@@ -1492,7 +1421,7 @@ function viewOrderDetails(id){
   if(!o) return;
   document.getElementById("odId").textContent = o.id;
   const itemsHtml = o.items.map(i=>`
-    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee">
+    <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #eee">
       <span><strong>${i.qty}×</strong> ${i.name}</span>
       <b>${money(i.price * i.qty)}</b>
     </div>
@@ -1516,8 +1445,8 @@ function viewOrderDetails(id){
     </div>
 
     <div style="margin-bottom:14px">
-      <label style="font-weight:800;display:block;margin-bottom:4px">Changer le statut :</label>
-      <select id="modalOrderStatus" style="width:100%;padding:9px;border-radius:10px;border:1px solid #ccc;font-weight:700" onchange="updateOrderStatus('${o.id}', this.value)">
+      <label style="font-weight:800;display:block;margin-bottom:4px">Statut commande :</label>
+      <select style="width:100%;padding:9px;border-radius:10px;border:1px solid #ccc;font-weight:700" onchange="updateOrderStatus('${o.id}', this.value)">
         ${["Nouvelle","Confirmée","En préparation","Prête","Livrée","Annulée"].map(s=>`
           <option value="${s}" ${o.status===s?'selected':''}>${s}</option>
         `).join("")}
@@ -1545,7 +1474,7 @@ async function updateOrderStatus(id, newStatus){
       await supabaseClient.from("orders").update({ status: newStatus }).eq("id", id);
     }
     renderAdmin();
-    toast(`Statut commande ${id} mis à jour : ${newStatus}`);
+    toast(`Statut commande ${id} : ${newStatus}`);
   }
 }
 
@@ -1561,7 +1490,6 @@ function viewBookingDetails(id){
       <div>👥 <strong>Couverts :</strong> ${b.people} personne(s)</div>
       ${b.note ? `<div style="margin-top:6px;padding-top:6px;border-top:1px dashed #d8c2b0">💬 <strong>Note :</strong> ${b.note}</div>` : ''}
     </div>
-
     <div style="margin-bottom:14px">
       <label style="font-weight:800;display:block;margin-bottom:4px">Statut réservation :</label>
       <select style="width:100%;padding:9px;border-radius:10px;border:1px solid #ccc;font-weight:700" onchange="updateBookingStatus('${b.id}', this.value)">
@@ -1570,10 +1498,9 @@ function viewBookingDetails(id){
         `).join("")}
       </select>
     </div>
-
     <div style="display:flex;gap:8px">
       <a href="https://wa.me/${b.phone.replace(/[^0-9]/g,'')}" target="_blank" class="btn btnGold" style="flex:1;justify-content:center">
-        💬 WhatsApp
+        💬 Écrire sur WhatsApp
       </a>
       <a href="tel:${b.phone}" class="btn btnLight">
         📞 Appeler
@@ -1678,82 +1605,70 @@ function renderAdmin(){
             <a href="https://wa.me/${b.phone.replace(/[^0-9]/g,'')}" target="_blank" class="btn btnGold" style="padding:6px 10px;font-size:12px" onclick="event.stopPropagation()">💬 WhatsApp</a>
           </div>
         </div>
-      `).join("") : '<div style="text-align:center;padding:30px;color:var(--muted)">Aucune réservation pour le moment.</div>'}
+      `).join("") : '<div style="text-align:center;padding:30px;color:var(--muted)">Aucune réservation enregistrée.</div>'}
     `;
   } else if(currentAdminTab === 'reports'){
     const validOrders = orders.filter(o=>o.status!=='Annulée');
     const totalRev = validOrders.reduce((s,o)=>s+o.total, 0);
     const avgCart = validOrders.length ? Math.round(totalRev / validOrders.length) : 0;
-    const totalGuests = bookings.reduce((s,b)=>s+(b.status!=='Annulée'?Number(b.people):0), 0);
+    const totalGuests = bookings.filter(b=>b.status!=='Annulée').reduce((s,b)=>s+b.people, 0);
 
     const payStats = {};
-    validOrders.forEach(o=>{ payStats[o.pay] = (payStats[o.pay]||0) + o.total; });
-
     const typeStats = {};
-    validOrders.forEach(o=>{ typeStats[o.type] = (typeStats[o.type]||0) + 1; });
+    const dishSales = {};
 
-    const dishStats = {};
     validOrders.forEach(o=>{
-      (o.items||[]).forEach(it=>{
-        if(!dishStats[it.name]) dishStats[it.name] = {count:0, total:0};
-        dishStats[it.name].count += it.qty;
-        dishStats[it.name].total += it.price * it.qty;
+      payStats[o.pay] = (payStats[o.pay] || 0) + o.total;
+      typeStats[o.type] = (typeStats[o.type] || 0) + 1;
+      (o.items || []).forEach(it=>{
+        if(!dishSales[it.name]) dishSales[it.name] = { count: 0, total: 0 };
+        dishSales[it.name].count += it.qty;
+        dishSales[it.name].total += (it.price * it.qty);
       });
     });
-    const sortedDishes = Object.entries(dishStats).sort((a,b)=>b[1].count - a[1].count);
+
+    const sortedDishes = Object.entries(dishSales).sort((a,b)=>b[1].count - a[1].count);
     const maxCount = sortedDishes[0] ? sortedDishes[0][1].count : 1;
 
     box.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <h3>📈 Rapport & Calculs Financiers</h3>
-        <button class="btn btnLight" onclick="window.print()">🖨️ Imprimer</button>
-      </div>
-
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:16px">
-        <div style="background:#fff;border:1px solid #eadbca;padding:14px;border-radius:14px">
-          <small style="color:var(--muted);font-weight:800">CHIFFRE D'AFFAIRES</small>
-          <div style="font-size:22px;font-weight:900;color:var(--primary);margin-top:2px">${money(totalRev)}</div>
-          <small>${validOrders.length} commande(s) confirmée(s)</small>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:10px;margin-bottom:14px">
+        <div style="background:#fff;border:1px solid #eadbca;padding:12px;border-radius:12px">
+          <small style="color:var(--muted);font-weight:800">TOTAL CHIFFRE D'AFFAIRES</small>
+          <div style="font-size:20px;font-weight:900;color:var(--primary);margin-top:2px">${money(totalRev)}</div>
+          <small>${validOrders.length} commande(s)</small>
         </div>
-        <div style="background:#fff;border:1px solid #eadbca;padding:14px;border-radius:14px">
+        <div style="background:#fff;border:1px solid #eadbca;padding:12px;border-radius:12px">
           <small style="color:var(--muted);font-weight:800">PANIER MOYEN</small>
-          <div style="font-size:22px;font-weight:900;color:var(--green);margin-top:2px">${money(avgCart)}</div>
+          <div style="font-size:20px;font-weight:900;color:var(--green);margin-top:2px">${money(avgCart)}</div>
           <small>Par commande client</small>
         </div>
-        <div style="background:#fff;border:1px solid #eadbca;padding:14px;border-radius:14px">
-          <small style="color:var(--muted);font-weight:800">TOTAL COUVERTS RÉSERVÉS</small>
-          <div style="font-size:22px;font-weight:900;color:var(--gold);margin-top:2px">${totalGuests} personnes</div>
-          <small>Sur ${bookings.length} réservation(s)</small>
+        <div style="background:#fff;border:1px solid #eadbca;padding:12px;border-radius:12px">
+          <small style="color:var(--muted);font-weight:800">COUVERTS RÉSERVÉS</small>
+          <div style="font-size:20px;font-weight:900;color:var(--gold);margin-top:2px">${totalGuests} personnes</div>
+          <small>${bookings.length} réservation(s)</small>
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
         <div class="reportBox">
-          <h4 style="margin-bottom:10px">💳 Répartition par Paiement</h4>
+          <h4 style="margin-bottom:8px">💳 Paiements</h4>
           ${Object.keys(payStats).length ? Object.entries(payStats).map(([k,v])=>`
-            <div class="reportRow">
-              <span>${k}</span>
-              <b>${money(v)}</b>
-            </div>
-          `).join("") : '<div style="color:var(--muted);font-size:12px">Aucune donnée</div>'}
+            <div class="reportRow"><span>${k}</span><b>${money(v)}</b></div>
+          `).join("") : '<div style="color:var(--muted);font-size:11px">Aucune donnée</div>'}
         </div>
-
         <div class="reportBox">
-          <h4 style="margin-bottom:10px">🛵 Répartition par Service</h4>
+          <h4 style="margin-bottom:8px">🛵 Services</h4>
           ${Object.keys(typeStats).length ? Object.entries(typeStats).map(([k,v])=>`
-            <div class="reportRow">
-              <span>${k}</span>
-              <b>${v} commande(s)</b>
-            </div>
-          `).join("") : '<div style="color:var(--muted);font-size:12px">Aucune donnée</div>'}
+            <div class="reportRow"><span>${k}</span><b>${v} cmd</b></div>
+          `).join("") : '<div style="color:var(--muted);font-size:11px">Aucune donnée</div>'}
         </div>
       </div>
 
       <div class="reportBox">
-        <h4 style="margin-bottom:10px">🏆 Classement des Plats les Plus Vendus</h4>
+        <h4 style="margin-bottom:8px">🏆 Plats les plus vendus</h4>
         ${sortedDishes.length ? sortedDishes.map(([name, data])=>`
-          <div style="margin-bottom:10px">
-            <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800">
+          <div style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:800">
               <span>${name}</span>
               <span>${data.count} vendus (${money(data.total)})</span>
             </div>
@@ -1761,12 +1676,13 @@ function renderAdmin(){
               <div class="progressFill" style="width:${Math.round(data.count/maxCount*100)}%"></div>
             </div>
           </div>
-        `).join("") : '<div style="color:var(--muted);font-size:12px">Pas encore de plats vendus.</div>'}
+        `).join("") : '<div style="color:var(--muted);font-size:11px">Pas encore de plats vendus.</div>'}
       </div>
     `;
   }
 }
 
+// 🍛 GESTION DES PLATS (SUPABASE)
 function openDishModal(){
   document.getElementById("editDishId").value = "";
   document.getElementById("dishName").value = "";
@@ -1793,7 +1709,7 @@ function editDish(id){
 
   if(d.photo){
     document.getElementById("dishPreviewImg").src = d.photo;
-    document.getElementById("dishPreviewBox").style.display = "inline-block";
+    document.getElementById("dishPreviewBox").style.display = "block";
   } else {
     document.getElementById("dishPreviewBox").style.display = "none";
   }
@@ -1811,14 +1727,14 @@ function removeDishPhotoPreview(){
 function previewDishFile(e){
   const f = e.target.files && e.target.files[0];
   if(!f) return;
-  if(!f.type.startsWith("image/")) return toast("Veuillez sélectionner une photo valide.");
+  if(!f.type.startsWith("image/")) return toast("Veuillez sélectionner une image.");
 
   const reader = new FileReader();
   reader.onload = (event) => {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement("canvas");
-      const maxDim = 800;
+      const maxDim = 600;
       let width = img.width;
       let height = img.height;
       if(width > maxDim || height > maxDim){
@@ -1829,9 +1745,9 @@ function previewDishFile(e){
       canvas.height = height;
       const ctx = canvas.getContext("2d");
       ctx.drawImage(img, 0, 0, width, height);
-      currentUploadedPhotoBase64 = canvas.toDataURL("image/jpeg", 0.82);
+      currentUploadedPhotoBase64 = canvas.toDataURL("image/jpeg", 0.72);
       document.getElementById("dishPreviewImg").src = currentUploadedPhotoBase64;
-      document.getElementById("dishPreviewBox").style.display = "inline-block";
+      document.getElementById("dishPreviewBox").style.display = "block";
     };
     img.src = event.target.result;
   };
@@ -1841,7 +1757,7 @@ function previewDishFile(e){
 async function saveDishForm(e){
   e.preventDefault();
   const btn = document.getElementById("btnSaveDish");
-  if(btn){ btn.disabled = true; btn.textContent = "Publication sur le site..."; }
+  if(btn){ btn.disabled = true; btn.textContent = "Publication..."; }
 
   const editId = document.getElementById("editDishId").value;
   const name = document.getElementById("dishName").value.trim();
@@ -1851,16 +1767,15 @@ async function saveDishForm(e){
 
   if(!name || price <= 0){
     if(btn){ btn.disabled = false; btn.textContent = "💾 Enregistrer et Publier"; }
-    return toast("Nom et prix sont obligatoires.");
+    return toast("Nom et prix obligatoires.");
   }
 
   const finalId = editId || ("dish-" + Date.now());
   const finalPhoto = currentUploadedPhotoBase64 || (editId ? (dishes.find(x=>String(x.id)===String(editId))?.photo || '') : '');
 
-  // 1. Sauvegarde dans SUPABASE (pour que tous les clients le voient !)
   if(supabaseClient){
     try {
-      await supabaseClient.from("menu_items").upsert({
+      const payload = {
         id: finalId,
         name: name,
         category: cat,
@@ -1868,34 +1783,25 @@ async function saveDishForm(e){
         description: desc,
         emoji: "🍽️",
         photo_url: finalPhoto,
-        available: true,
-        updated_at: new Date().toISOString()
-      });
+        available: true
+      };
+      const { error: dbError } = await supabaseClient.from("menu_items").upsert(payload);
+      if(dbError){
+        console.error("Supabase upsert menu:", dbError);
+        alert("Erreur Supabase : " + (dbError.message || JSON.stringify(dbError)));
+      }
     } catch(err){
       console.error(err);
+      alert("Erreur réseau Supabase : " + err.message);
     }
   }
 
-  // 2. Mise à jour de la mémoire locale
   if(editId){
     const d = dishes.find(x=>String(x.id)===String(editId));
-    if(d){
-      d.name = name;
-      d.price = price;
-      d.cat = cat;
-      d.desc = desc;
-      d.photo = finalPhoto;
-    }
-    toast(`Plat "${name}" modifié et synchronisé !`);
+    if(d){ d.name = name; d.price = price; d.cat = cat; d.desc = desc; d.photo = finalPhoto; }
+    toast(`Plat "${name}" mis à jour !`);
   } else {
-    const newDish = {
-      id: finalId,
-      name, price, cat, desc,
-      emoji: "🍽️",
-      photo: finalPhoto,
-      available: true
-    };
-    dishes.unshift(newDish);
+    dishes.unshift({ id: finalId, name, price, cat, desc, emoji: "🍽️", photo: finalPhoto, available: true });
     toast(`Plat "${name}" publié sur la page d'accueil ! 🍛`);
   }
 
@@ -1904,7 +1810,6 @@ async function saveDishForm(e){
   renderAdmin();
   renderClientMenu();
   if(btn){ btn.disabled = false; btn.textContent = "💾 Enregistrer et Publier sur l'Accueil"; }
-
   setTimeout(syncDishesFromSupabase, 800);
 }
 
@@ -1913,28 +1818,24 @@ async function toggleDish(id){
   if(!d) return;
   d.available = !d.available;
   saveStorage("dfc_dishes", dishes);
-
   if(supabaseClient){
     await supabaseClient.from("menu_items").update({ available: d.available }).eq("id", id);
   }
-
   renderAdmin();
   renderClientMenu();
-  toast(d.available ? `Plat "${d.name}" affiché au menu` : `Plat "${d.name}" masqué`);
+  toast(d.available ? `Plat "${d.name}" affiché` : `Plat "${d.name}" masqué`);
 }
 
 async function deleteDish(id){
   const d = dishes.find(x=>String(x.id)===String(id));
   if(!d) return;
-  if(!confirm(`Supprimer définitivement le plat "${d.name}" ? Il ne sera plus visible sur le site.`)) return;
+  if(!confirm(`Supprimer définitivement le plat "${d.name}" ?`)) return;
 
   dishes = dishes.filter(x=>String(x.id)!==String(id));
   saveStorage("dfc_dishes", dishes);
-
   if(supabaseClient){
     await supabaseClient.from("menu_items").delete().eq("id", id);
   }
-
   renderAdmin();
   renderClientMenu();
   toast(`Plat "${d.name}" supprimé.`);
@@ -1948,6 +1849,8 @@ window.addEventListener("DOMContentLoaded", () => {
   syncBookingsFromSupabase();
   initSupabaseRealtime();
 });
+  
+        
 </script>
 
 </body>
