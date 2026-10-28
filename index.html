@@ -1315,8 +1315,9 @@ async function submitClientOrder(e){
     {customer_name:name,customer_phone:phone,type,pay,note,items,total,status:"Nouvelle"}
   ];
   for(const payload of variants){
-    const r=await supabaseClient.from("orders").insert(payload).select("*").single();
-    if(!r.error){saved=r.data;break;}
+    // Insert without RETURNING: public clients must not read back private order rows.
+    const r=await supabaseClient.from("orders").insert(payload);
+    if(!r.error){saved={...payload,order_number:payload.order_number||orderNumber};break;}
     lastError=r.error;
     // Only try another column shape for schema/column errors; don't hide RLS or network errors.
     if(!/column .* does not exist|schema cache|could not find .* column|unknown field|order_number/i.test(r.error.message||"")) break;
@@ -1375,8 +1376,9 @@ async function submitClientBooking(e){
   let saved=null,lastError=null,tableUsed=null;
   for(const table of ["reservation","reservations"]){
     for(const payload of candidates){
-      const r=await supabaseClient.from(table).insert(payload).select("*").single();
-      if(!r.error){saved=r.data;tableUsed=table;break;}
+      // Insert without RETURNING: clients should not need SELECT permission for reservations.
+      const r=await supabaseClient.from(table).insert(payload);
+      if(!r.error){saved={...payload};tableUsed=table;break;}
       lastError=r.error;
       if(/relation .* does not exist|could not find the table|schema cache.*table/i.test(r.error.message||"")) break;
       if(!/column .* does not exist|schema cache|could not find .* column|unknown field|reservation_number/i.test(r.error.message||"")) break;
@@ -1862,4 +1864,4 @@ window.addEventListener("DOMContentLoaded", async () => {
 </script>
 
 </body>
-  </html>
+</html>
