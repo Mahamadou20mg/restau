@@ -924,9 +924,17 @@ footer {
 <div id="toastBox" class="toast"></div>
 
 <script>
-const SUPABASE_URL = "https://ysbyguyriolctlgdcbsq.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_uM__1eHFTHAd21_iCjYDJg_AJ0ul45t";
-const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
+
+const SUPABASE_URL = "https://tjryhnpbpnstbbyjyjhs.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_j46_dWqTNeIaCHuZT_88DA_lEerXoVY";
+
+const supabaseClient = window.supabase
+  ? window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    )
+  : null;
 
 const DEFAULT_DISHES = [
   {
