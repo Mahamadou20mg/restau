@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#7a1f16">
-<title>dugukla-food-club — Restaurant Sadiola 🇲🇱</title>
+<title>VAN KA RESTAU — Restaurant malien 🇲🇱</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
@@ -924,78 +924,24 @@ footer {
 <div id="toastBox" class="toast"></div>
 
 <script>
-const SUPABASE_URL = "https://ysbyguyriolctlgdcbsq.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_uM__1eHFTHAd21_iCjYDJg_AJ0ul45t";
-const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
+// À compléter avec l'URL du projet actuellement ouvert dans Supabase > Project Settings > API Data.
+const SUPABASE_URL = "https://tjryhnpbpnstbbyjyjhs.supabase.co";
+// Utiliser uniquement la clé publishable (sb_publishable_...), jamais une clé secret/service_role.
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_j46_dWqTNeIaCHuZT_88DA_lEerXoVY";
+const SUPABASE_CONFIGURED = SUPABASE_URL.startsWith("https://") &&
+  SUPABASE_URL.endsWith(".supabase.co") &&
+  SUPABASE_PUBLISHABLE_KEY.startsWith("sb_publishable_");
+const supabaseClient = (window.supabase && SUPABASE_CONFIGURED)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+  : null;
 
-const DEFAULT_DISHES = [
-  {
-    id: "d-1",
-    name: "Tigadèguèna (Sauce Arachide)",
-    cat: "Plats maliens",
-    price: 3500,
-    emoji: "🍛",
-    photo: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80",
-    desc: "Sauce onctueuse à la pâte d'arachide avec viande de bœuf tendre, servie avec du riz blanc de Baguineda.",
-    available: true
-  },
-  {
-    id: "d-2",
-    name: "Fakoye du Nord",
-    cat: "Plats maliens",
-    price: 4000,
-    emoji: "🍲",
-    photo: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=600&q=80",
-    desc: "Spécialité songhaï avec corète potagère séchée, viande de mouton fondante et épices de Tombouctou.",
-    available: true
-  },
-  {
-    id: "d-3",
-    name: "Riz au Gras Malien (Zaamin)",
-    cat: "Plats maliens",
-    price: 3000,
-    emoji: "🍚",
-    photo: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=600&q=80",
-    desc: "Riz mijoté dans un bouillon savoureux de viande et légumes frais, carottes croquantes et chou.",
-    available: true
-  },
-  {
-    id: "d-4",
-    name: "Dibi d'Agneau de Bamako",
-    cat: "Grillades",
-    price: 4500,
-    emoji: "🥩",
-    photo: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80",
-    desc: "Agneau grillé au feu de bois façon Kati, servi avec oignons marinés, piment doux et moutarde.",
-    available: true
-  },
-  {
-    id: "d-5",
-    name: "Alloco Doré",
-    cat: "Accompagnements",
-    price: 1000,
-    emoji: "🍌",
-    photo: "https://images.unsplash.com/photo-1528751014936-863e6e7a319c?auto=format&fit=crop&w=600&q=80",
-    desc: "Bananes plantains mûres découpées et dorées à point, croustillantes à l'extérieur et moelleuses.",
-    available: true
-  },
-  {
-    id: "d-6",
-    name: "Jus de Bissap Maison",
-    cat: "Boissons",
-    price: 800,
-    emoji: "🥤",
-    photo: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80",
-    desc: "Fleurs d'hibiscus rouge infusées avec menthe fraîche du jardin et essence de vanille.",
-    available: true
-  }
-];
 
-let dishes = loadStorage("dfc_dishes", DEFAULT_DISHES);
+
+let dishes = []; // Menu chargé depuis Supabase; aucun plat fictif publié par défaut.
 let cart = loadStorage("dfc_cart", []);
-let orders = loadStorage("dfc_orders", []);
-let bookings = loadStorage("dfc_bookings", []);
-let isManager = loadStorage("dfc_is_manager", false);
+let orders = []; // Commandes chargées depuis Supabase.
+let bookings = []; // Réservations chargées depuis Supabase.
+let isManager = false; // Le dashboard n’est accessible qu’après vérification Supabase Auth + profiles.
 let currentCategory = "Tous";
 let currentUploadedPhotoBase64 = "";
 
@@ -1014,6 +960,171 @@ function toast(msg){
   t.textContent = msg;
   t.classList.add("active");
   setTimeout(()=>t.classList.remove("active"), 2800);
+}
+
+
+// ===== SYNCHRONISATION SUPABASE =====
+// Les clients lisent le menu depuis Supabase; commandes et réservations y sont écrites.
+let activeDishTable = "dishes";
+let activeReservationTable = "reservation";
+let vkRealtimeChannel = null;
+let vkRefreshBusy = false;
+
+function mapDishRow(row){
+  return {
+    id: row.id,
+    name: row.name || "",
+    cat: row.category || row.cat || "Plats maliens",
+    price: Number(row.price || 0),
+    emoji: row.emoji || "🍽️",
+    photo: row.photo_url || row.photo || row.image_url ||
+      (row.photo_path && supabaseClient ? supabaseClient.storage.from("dish-photos").getPublicUrl(row.photo_path).data.publicUrl : ""),
+    desc: row.description || row.desc || "",
+    available: row.available !== false
+  };
+}
+function mapOrderRow(row){
+  let items=row.items;
+  if(typeof items==="string"){try{items=JSON.parse(items)}catch(_){items=[]}}
+  if(!Array.isArray(items)) items=[];
+  return {
+    ...row,
+    dbId:row.id,
+    id:row.order_number || row.order_code || row.id || "Commande",
+    date:row.created_at ? new Date(row.created_at).toLocaleString("fr-FR") : (row.date || ""),
+    name:row.customer_name || row.client_name || row.name || "Client",
+    phone:row.customer_phone || row.client_phone || row.phone || "",
+    type:row.order_type || row.type || "",
+    pay:row.payment_method || row.pay || "",
+    note:row.note || row.address || "",
+    total:Number(row.total || row.total_amount || 0),
+    status:row.status || "Nouvelle",
+    items:items.map(it=>({
+      ...it,
+      id:it.dish_id || it.menu_item_id || it.id,
+      name:it.item_name || it.dish_name || it.name || "Plat",
+      qty:Number(it.quantity || it.qty || 1),
+      price:Number(it.unit_price || it.price || 0)
+    }))
+  };
+}
+function mapBookingRow(row){
+  return {
+    ...row,
+    dbId:row.id,
+    id:row.reservation_number || row.booking_number || row.id || "Réservation",
+    name:row.customer_name || row.client_name || row.name || "Client",
+    phone:row.customer_phone || row.client_phone || row.phone || "",
+    date:row.reservation_date || row.booking_date || row.date || "",
+    time:row.reservation_time || row.booking_time || row.time || "",
+    people:Number(row.people || row.number_of_people || row.guests || 1),
+    note:row.note || row.message || "",
+    status:row.status || "En attente",
+    created_at:row.created_at || ""
+  };
+}
+async function selectRows(table, orderColumn="created_at"){
+  let r=await supabaseClient.from(table).select("*").order(orderColumn,{ascending:false});
+  if(r.error) r=await supabaseClient.from(table).select("*");
+  return r;
+}
+async function loadMenuFromSupabase(){
+  if(!supabaseClient) throw new Error("Supabase n'est pas configuré.");
+  let lastError=null;
+  for(const table of ["dishes","menu_items"]){
+    const r=await selectRows(table);
+    if(!r.error){
+      activeDishTable=table;
+      dishes=(r.data||[]).map(mapDishRow);
+      renderClientMenu();
+      if(isManager) renderAdmin();
+      return true;
+    }
+    lastError=r.error;
+  }
+  throw lastError || new Error("Table du menu introuvable.");
+}
+async function loadOrdersFromSupabase(){
+  const r=await selectRows("orders");
+  if(r.error) throw r.error;
+  const rows=r.data||[];
+  let lineRows=[], lineTable="orders_items";
+  let lr=await supabaseClient.from("orders_items").select("*");
+  if(lr.error){
+    lineTable="order_items";
+    lr=await supabaseClient.from("order_items").select("*");
+  }
+  if(!lr.error) lineRows=lr.data||[];
+  orders=rows.map(row=>{
+    const mapped=mapOrderRow(row);
+    if(!mapped.items.length){
+      mapped.items=lineRows.filter(it=>String(it.order_id)===String(row.id)).map(it=>({
+        id:it.dish_id || it.menu_item_id || it.id,
+        name:it.item_name || it.dish_name || it.name || "Plat",
+        qty:Number(it.quantity || it.qty || 1),
+        price:Number(it.unit_price || it.price || 0)
+      }));
+    }
+    return mapped;
+  });
+}
+async function loadBookingsFromSupabase(){
+  let lastError=null;
+  for(const table of ["reservation","reservations","bookings"]){
+    const r=await selectRows(table);
+    if(!r.error){
+      activeReservationTable=table;
+      bookings=(r.data||[]).map(mapBookingRow);
+      return true;
+    }
+    lastError=r.error;
+    if(!/relation .* does not exist|could not find the table|schema cache/i.test(r.error.message||"")) break;
+  }
+  throw lastError || new Error("Table de réservations introuvable.");
+}
+async function refreshSupabaseData(showErrors=true){
+  if(!supabaseClient || vkRefreshBusy) return false;
+  vkRefreshBusy=true;
+  let ok=true;
+  try{
+    await loadMenuFromSupabase();
+  }catch(e){
+    ok=false; console.error("Chargement menu Supabase:",e);
+    if(showErrors) toast("Menu Supabase : "+(e.message||"erreur de connexion"));
+  }
+  if(isManager){
+    try{await loadOrdersFromSupabase()}catch(e){ok=false;console.error("Chargement commandes:",e);if(showErrors)toast("Commandes : "+(e.message||"erreur Supabase"))}
+    try{await loadBookingsFromSupabase()}catch(e){ok=false;console.error("Chargement réservations:",e);if(showErrors)toast("Réservations : "+(e.message||"erreur Supabase"))}
+    renderAdmin();
+  }
+  vkRefreshBusy=false;
+  return ok;
+}
+function startSupabaseRealtime(){
+  if(!supabaseClient || vkRealtimeChannel) return;
+  try{
+    vkRealtimeChannel=supabaseClient.channel("van-ka-restau-sync")
+      .on("postgres_changes",{event:"*",schema:"public",table:"dishes"},()=>{loadMenuFromSupabase().catch(console.error)})
+      .on("postgres_changes",{event:"*",schema:"public",table:"menu_items"},()=>{loadMenuFromSupabase().catch(console.error)})
+      .on("postgres_changes",{event:"*",schema:"public",table:"orders"},()=>{if(isManager)loadOrdersFromSupabase().then(()=>renderAdmin()).catch(console.error)})
+      .on("postgres_changes",{event:"*",schema:"public",table:"orders_items"},()=>{if(isManager)loadOrdersFromSupabase().then(()=>renderAdmin()).catch(console.error)})
+      .on("postgres_changes",{event:"*",schema:"public",table:"reservation"},()=>{if(isManager)loadBookingsFromSupabase().then(()=>renderAdmin()).catch(console.error)})
+      .subscribe();
+  }catch(e){console.warn("Realtime Supabase non activé; actualisation périodique utilisée.",e)}
+}
+async function uploadDishPhoto(file){
+  if(!file) return "";
+  if(!supabaseClient) throw new Error("Supabase n'est pas configuré.");
+  const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
+  const path="dishes/"+Date.now()+"-"+Math.random().toString(36).slice(2,8)+"."+ext;
+  let lastError=null;
+  for(const bucket of ["dish-photos","menu-images","photos"]){
+    const up=await supabaseClient.storage.from(bucket).upload(path,file,{upsert:true,contentType:file.type||"image/jpeg"});
+    if(!up.error) return supabaseClient.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+    lastError=up.error;
+    if(!/bucket not found|not found/i.test(up.error.message||"")) break;
+  }
+  throw lastError || new Error("Impossible d'envoyer la photo.");
 }
 
 function showView(view){
@@ -1180,134 +1291,147 @@ function openCheckout(){
   openModal('checkoutModal');
 }
 
-function submitClientOrder(e){
+async function submitClientOrder(e){
   e.preventDefault();
-  const name = document.getElementById("cName").value.trim();
-  const phone = document.getElementById("cPhone").value.trim();
-  const type = document.getElementById("cType").value;
-  const pay = document.getElementById("cPay").value;
-  const note = document.getElementById("cNote").value.trim();
-
-  let total = 0;
-  const items = cart.map(item=>{
-    const d = dishes.find(x=>String(x.id)===String(item.id));
-    const price = d ? d.price : 0;
-    total += price * item.qty;
-    return { id: item.id, name: d?d.name:'Plat', qty: item.qty, price };
-  });
-
-  const orderId = "DFC-" + Date.now().toString().slice(-5);
-  const newOrder = {
-    id: orderId,
-    date: new Date().toLocaleString("fr-FR"),
-    name, phone, type, pay, note,
-    items, total,
-    status: "Nouvelle"
-  };
-
-  orders.unshift(newOrder);
-  saveStorage("dfc_orders", orders);
-
-  const itemsList = items.map(i=>`• ${i.qty}x ${i.name} (${money(i.price*i.qty)})`).join("\n");
-  const waMsg = `*COMMANDE DUGUKLA FOOD CLUB (${orderId})*\n\n`+
-    `👤 *Client :* ${name}\n`+
-    `📞 *Téléphone :* ${phone}\n`+
-    `🛵 *Service :* ${type}\n`+
-    `💳 *Paiement :* ${pay}\n`+
-    (note ? `📍 *Adresse / Note :* ${note}\n` : '') +
-    `\n*DÉTAILS DES PLATS :*\n${itemsList}\n\n`+
-    `💰 *TOTAL : ${money(total)}*`;
-
-  const waUrl = `https://wa.me/22394866798?text=${encodeURIComponent(waMsg)}`;
-
-  cart = [];
-  saveStorage("dfc_cart", cart);
-  updateCartBadges();
-  closeModal('checkoutModal');
-  toast(`Commande ${orderId} validée ! ✅`);
-
-  if(confirm(`Commande ${orderId} validée avec succès !\n\nVoulez-vous ouvrir WhatsApp pour envoyer les détails au restaurant (+223 94 86 67 98) ?`)){
-    window.open(waUrl, "_blank");
+  if(!supabaseClient) return toast("Connexion Supabase indisponible. Vérifie l'URL et la clé API.");
+  if(!cart.length) return toast("Votre panier est vide.");
+  const name=document.getElementById("cName").value.trim();
+  const phone=document.getElementById("cPhone").value.trim();
+  const type=document.getElementById("cType").value;
+  const pay=document.getElementById("cPay").value;
+  const note=document.getElementById("cNote").value.trim();
+  const items=cart.map(item=>{
+    const d=dishes.find(x=>String(x.id)===String(item.id));
+    return d ? {id:d.id,name:d.name,qty:Number(item.qty||1),price:Number(d.price||0)} : null;
+  }).filter(Boolean);
+  if(!items.length) return toast("Le panier ne contient aucun plat disponible.");
+  const total=items.reduce((sum,it)=>sum+it.price*it.qty,0);
+  const orderNumber="VK-"+Date.now().toString().slice(-8);
+  const base={order_number:orderNumber,customer_name:name,customer_phone:phone,order_type:type,payment_method:pay,note,items,total,status:"Nouvelle"};
+  let saved=null, lastError=null;
+  const variants=[
+    base,
+    {customer_name:name,customer_phone:phone,order_type:type,payment_method:pay,note,items,total,status:"Nouvelle"},
+    {customer_name:name,customer_phone:phone,type,pay,note,items,total,status:"Nouvelle"}
+  ];
+  for(const payload of variants){
+    const r=await supabaseClient.from("orders").insert(payload).select("*").single();
+    if(!r.error){saved=r.data;break;}
+    lastError=r.error;
+    // Only try another column shape for schema/column errors; don't hide RLS or network errors.
+    if(!/column .* does not exist|schema cache|could not find .* column|unknown field|order_number/i.test(r.error.message||"")) break;
+  }
+  if(!saved){
+    console.error("Enregistrement commande Supabase:",lastError);
+    return toast("Commande non enregistrée : "+(lastError?.message||"erreur Supabase"));
+  }
+  // Optional line items table: the full item list is also stored in orders.items when that column exists.
+  const orderDbId=saved.id;
+  if(orderDbId){
+    const lineRows=items.map(it=>({order_id:orderDbId,item_name:it.name,dish_id:it.id,quantity:it.qty,unit_price:it.price,line_total:it.qty*it.price}));
+    let lineError=null, lineSaved=false;
+    for(const payload of [
+      lineRows,
+      items.map(it=>({order_id:orderDbId,dish_id:it.id,quantity:it.qty,price:it.price})),
+      items.map(it=>({order_id:orderDbId,item_name:it.name,qty:it.qty,price:it.price}))
+    ]){
+      const r=await supabaseClient.from("orders_items").insert(payload);
+      if(!r.error){lineSaved=true;break;}
+      lineError=r.error;
+      if(!/column .* does not exist|schema cache|could not find .* column|unknown field|relation .* does not exist/i.test(r.error.message||"")) break;
+    }
+    if(!lineSaved && lineError && !/relation .* does not exist|could not find the table|schema cache/i.test(lineError.message||"")){
+      console.warn("Les lignes détaillées de commande n'ont pas été ajoutées; les articles sont conservés dans orders.items si cette colonne existe.",lineError);
+    }
+  }
+  orders.unshift(mapOrderRow({...saved,items:saved.items||items}));
+  cart=[];saveStorage("dfc_cart",cart);updateCartBadges();
+  closeModal("checkoutModal");e.target.reset();
+  renderAdmin();
+  toast("Commande "+(saved.order_number||orderNumber)+" enregistrée dans Supabase !");
+  try{await refreshSupabaseData(false)}catch(_){}
+  const waMsg=`*COMMANDE VAN KA RESTAU (${saved.order_number||orderNumber})*\\n\\n👤 *Client :* ${name}\\n📞 *Téléphone :* ${phone}\\n🛵 *Service :* ${type}\\n💳 *Paiement :* ${pay}\\n${note?`📍 *Note :* ${note}\\n`:""}\\n*PLATS :*\\n${items.map(i=>`• ${i.qty} × ${i.name} (${money(i.price*i.qty)})`).join("\\n")}\\n\\n💰 *TOTAL : ${money(total)}*`;
+  if(confirm("Commande enregistrée dans la base de données. Voulez-vous aussi envoyer les détails au restaurant par WhatsApp ?")){
+    window.open("https://wa.me/22394866798?text="+encodeURIComponent(waMsg),"_blank");
   }
 }
 
-function submitClientBooking(e){
+async function submitClientBooking(e){
   e.preventDefault();
-  const name = document.getElementById("bName").value.trim();
-  const phone = document.getElementById("bPhone").value.trim();
-  const date = document.getElementById("bDate").value;
-  const time = document.getElementById("bTime").value;
-  const people = document.getElementById("bPeople").value;
-  const note = document.getElementById("bNote").value.trim();
-
-  const bookingId = "RES-" + Date.now().toString().slice(-4);
-  const newBooking = {
-    id: bookingId,
-    name, phone, date, time, people, note,
-    status: "En attente",
-    created_at: new Date().toLocaleString("fr-FR")
-  };
-
-  bookings.unshift(newBooking);
-  saveStorage("dfc_bookings", bookings);
-
-  const waMsg = `*RÉSERVATION DE TABLE (${bookingId})*\n\n`+
-    `👤 *Nom :* ${name}\n`+
-    `📞 *Téléphone :* ${phone}\n`+
-    `📅 *Date :* ${date} à ${time}\n`+
-    `👥 *Nombre de personnes :* ${people} personne(s)\n`+
-    (note ? `💬 *Précision :* ${note}\n` : '');
-
-  const waUrl = `https://wa.me/22394866798?text=${encodeURIComponent(waMsg)}`;
-
-  closeModal('bookingModal');
-  toast(`Réservation ${bookingId} enregistrée ! 📅`);
-
-  if(confirm(`Votre réservation est enregistrée !\n\nVoulez-vous envoyer la confirmation sur WhatsApp au restaurant (+223 94 86 67 98) ?`)){
-    window.open(waUrl, "_blank");
+  if(!supabaseClient) return toast("Connexion Supabase indisponible. Vérifie l'URL et la clé API.");
+  const name=document.getElementById("bName").value.trim();
+  const phone=document.getElementById("bPhone").value.trim();
+  const date=document.getElementById("bDate").value;
+  const time=document.getElementById("bTime").value;
+  const people=Number(document.getElementById("bPeople").value||1);
+  const note=document.getElementById("bNote").value.trim();
+  const reservationNumber="RES-"+Date.now().toString().slice(-8);
+  const candidates=[
+    {reservation_number:reservationNumber,customer_name:name,customer_phone:phone,reservation_date:date,reservation_time:time,people,note,status:"En attente"},
+    {customer_name:name,customer_phone:phone,reservation_date:date,reservation_time:time,people,note,status:"En attente"},
+    {customer_name:name,customer_phone:phone,date,time,people,note,status:"En attente"},
+    {name,phone,date,time,people,note,status:"En attente"}
+  ];
+  let saved=null,lastError=null,tableUsed=null;
+  for(const table of ["reservation","reservations"]){
+    for(const payload of candidates){
+      const r=await supabaseClient.from(table).insert(payload).select("*").single();
+      if(!r.error){saved=r.data;tableUsed=table;break;}
+      lastError=r.error;
+      if(/relation .* does not exist|could not find the table|schema cache.*table/i.test(r.error.message||"")) break;
+      if(!/column .* does not exist|schema cache|could not find .* column|unknown field|reservation_number/i.test(r.error.message||"")) break;
+    }
+    if(saved)break;
+    if(lastError && !/relation .* does not exist|could not find the table|schema cache.*table/i.test(lastError.message||"")) break;
+  }
+  if(!saved){
+    console.error("Enregistrement réservation Supabase:",lastError);
+    return toast("Réservation non enregistrée : "+(lastError?.message||"vérifie la table reservation et ses autorisations"));
+  }
+  bookings.unshift(mapBookingRow(saved));
+  closeModal("bookingModal");e.target.reset();
+  toast("Réservation enregistrée dans Supabase !");
+  await refreshSupabaseData(false);
+  const waMsg=`*RÉSERVATION VAN KA RESTAU (${saved.reservation_number||saved.id||reservationNumber})*\\n\\n👤 *Nom :* ${name}\\n📞 *Téléphone :* ${phone}\\n📅 *Date :* ${date} à ${time}\\n👥 *Personnes :* ${people}\\n${note?`💬 *Note :* ${note}`:""}`;
+  if(confirm("Réservation enregistrée dans la base de données. Voulez-vous aussi envoyer les détails au restaurant par WhatsApp ?")){
+    window.open("https://wa.me/22394866798?text="+encodeURIComponent(waMsg),"_blank");
   }
 }
 
 async function handleLoginSubmit(e){
   e.preventDefault();
-  const u = document.getElementById("loginUser").value.trim().toLowerCase();
-  const p = document.getElementById("loginPass").value.trim();
-
-  if((u === "www.mydataall006@gmail.com" || u === "mydataall006@gmail.com") && p === "web.gerant123"){
-    isManager = true;
-    saveStorage("dfc_is_manager", true);
-    closeModal('loginModal');
-    document.getElementById("loginUser").value = "";
-    document.getElementById("loginPass").value = "";
-    showView('admin');
-    toast("Bienvenue dans votre Dashboard Gérant !");
-    return;
+  if(!supabaseClient) return toast("Supabase n'est pas configuré. Vérifie l'URL et la clé publishable.");
+  const email=document.getElementById("loginUser").value.trim().toLowerCase();
+  const password=document.getElementById("loginPass").value;
+  const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+  if(error){console.error("Connexion Supabase:",error);return toast("Connexion impossible : "+error.message);}
+  const user=data.user;
+  const p=await supabaseClient.from("profiles").select("*").eq("id",user.id).maybeSingle();
+  if(p.error || !p.data){
+    await supabaseClient.auth.signOut();
+    return toast("Profil du gérant introuvable dans la table profiles.");
   }
-
-  if(supabaseClient){
-    try {
-      const { data, error } = await supabaseClient.auth.signInWithPassword({ email: u, password: p });
-      if(!error && data?.user){
-        isManager = true;
-        saveStorage("dfc_is_manager", true);
-        closeModal('loginModal');
-        document.getElementById("loginUser").value = "";
-        document.getElementById("loginPass").value = "";
-        showView('admin');
-        toast("Connexion Supabase réussie !");
-        return;
-      }
-    } catch(err){}
+  const role=String(p.data.role||"").trim().toLowerCase();
+  if(p.data.active===false || !["gérant","gerant","manager"].includes(role)){
+    await supabaseClient.auth.signOut();
+    return toast("Ce compte n'a pas le rôle Gérant dans profiles.");
   }
-
-  toast("Identifiants incorrects.");
+  isManager=true;
+  closeModal("loginModal");
+  document.getElementById("loginUser").value="";
+  document.getElementById("loginPass").value="";
+  await refreshSupabaseData(true);
+  startSupabaseRealtime();
+  showView("admin");
+  toast("Connexion Gérant réussie.");
 }
 
 function adminLogout(){
   if(supabaseClient) supabaseClient.auth.signOut().catch(()=>{});
-  isManager = false;
-  saveStorage("dfc_is_manager", false);
-  showView('home');
+  isManager=false;
+  saveStorage("dfc_is_manager",false);
+  if(vkRealtimeChannel && supabaseClient){supabaseClient.removeChannel(vkRealtimeChannel);vkRealtimeChannel=null;}
+  showView("home");
   toast("Déconnexion réussie.");
 }
 
@@ -1368,14 +1492,11 @@ function viewOrderDetails(id){
   openModal('orderDetailModal');
 }
 
-function updateOrderStatus(id, newStatus){
-  const o = orders.find(x=>x.id===id);
-  if(o){
-    o.status = newStatus;
-    saveStorage("dfc_orders", orders);
-    renderAdmin();
-    toast(`Statut commande ${id} mis à jour : ${newStatus}`);
-  }
+async function updateOrderStatus(id,newStatus){
+  const o=orders.find(x=>String(x.id)===String(id)||String(x.dbId)===String(id)); if(!o)return;
+  const r=await supabaseClient.from("orders").update({status:newStatus}).eq("id",o.dbId);
+  if(r.error){console.error(r.error);return toast("Statut non enregistré : "+r.error.message);}
+  o.status=newStatus;renderAdmin();toast("Statut de commande enregistré.");
 }
 
 function viewBookingDetails(id){
@@ -1412,14 +1533,11 @@ function viewBookingDetails(id){
   openModal('bookingDetailModal');
 }
 
-function updateBookingStatus(id, newStatus){
-  const b = bookings.find(x=>x.id===id);
-  if(b){
-    b.status = newStatus;
-    saveStorage("dfc_bookings", bookings);
-    renderAdmin();
-    toast(`Réservation ${id} : ${newStatus}`);
-  }
+async function updateBookingStatus(id,newStatus){
+  const b=bookings.find(x=>String(x.id)===String(id)||String(x.dbId)===String(id)); if(!b)return;
+  const r=await supabaseClient.from(activeReservationTable).update({status:newStatus}).eq("id",b.dbId);
+  if(r.error){console.error(r.error);return toast("Statut de réservation non enregistré : "+r.error.message);}
+  b.status=newStatus;renderAdmin();toast("Statut de réservation enregistré.");
 }
 
 function renderAdmin(){
@@ -1657,70 +1775,91 @@ function previewDishFile(e){
   reader.readAsDataURL(f);
 }
 
-function saveDishForm(e){
+async function saveDishForm(e){
   e.preventDefault();
-  const editId = document.getElementById("editDishId").value;
-  const name = document.getElementById("dishName").value.trim();
-  const price = Number(document.getElementById("dishPrice").value);
-  const cat = document.getElementById("dishCat").value.trim() || "Plats maliens";
-  const desc = document.getElementById("dishDesc").value.trim();
-
-  if(!name || price <= 0) return toast("Nom et prix sont obligatoires.");
-
-  if(editId){
-    const d = dishes.find(x=>String(x.id)===String(editId));
-    if(d){
-      d.name = name;
-      d.price = price;
-      d.cat = cat;
-      d.desc = desc;
-      d.photo = currentUploadedPhotoBase64 || d.photo;
+  if(!isManager || !supabaseClient) return toast("Connecte-toi avec le compte Gérant.");
+  const editId=document.getElementById("editDishId").value;
+  const name=document.getElementById("dishName").value.trim();
+  const price=Number(document.getElementById("dishPrice").value);
+  const cat=document.getElementById("dishCat").value.trim()||"Plats maliens";
+  const desc=document.getElementById("dishDesc").value.trim();
+  const file=document.getElementById("dishFile").files?.[0];
+  if(!name || !Number.isFinite(price) || price<0) return toast("Nom et prix valides obligatoires.");
+  try{
+    const old=editId?dishes.find(x=>String(x.id)===String(editId)):null;
+    let photo=old?.photo||"";
+    if(file) photo=await uploadDishPhoto(file);
+    const payload={name,category:cat,price,description:desc,photo_url:photo||null,available:old?old.available:true};
+    let r;
+    if(editId){
+      r=await supabaseClient.from(activeDishTable).update({...payload,updated_at:new Date().toISOString()}).eq("id",editId).select("*").single();
+    }else{
+      r=await supabaseClient.from(activeDishTable).insert(payload).select("*").single();
     }
-    toast(`Plat "${name}" modifié avec succès !`);
-  } else {
-    const newDish = {
-      id: "dish-" + Date.now(),
-      name, price, cat, desc,
-      emoji: "🍽️",
-      photo: currentUploadedPhotoBase64 || "",
-      available: true
-    };
-    dishes.unshift(newDish);
-    toast(`Plat "${name}" publié sur la page d'accueil ! 🍛`);
+    if(r.error){
+      // If updated_at is absent in the actual table, retry the edit without that optional column.
+      if(editId && /updated_at|column .* does not exist|schema cache/i.test(r.error.message||"")){
+        r=await supabaseClient.from(activeDishTable).update(payload).eq("id",editId).select("*").single();
+      }
+    }
+    if(r.error) throw r.error;
+    closeModal("dishModal");
+    currentUploadedPhotoBase64="";
+    await loadMenuFromSupabase();
+    renderAdmin();
+    toast(editId?"Plat modifié et synchronisé.":"Plat ajouté et publié pour tous les clients.");
+  }catch(err){
+    console.error("Enregistrement plat:",err);
+    toast("Plat non enregistré : "+(err.message||"vérifie les autorisations Supabase"));
   }
-
-  saveStorage("dfc_dishes", dishes);
-  closeModal('dishModal');
-  renderAdmin();
-  renderClientMenu();
 }
 
-function toggleDish(id){
-  const d = dishes.find(x=>String(x.id)===String(id));
-  if(!d) return;
-  d.available = !d.available;
-  saveStorage("dfc_dishes", dishes);
-  renderAdmin();
-  renderClientMenu();
-  toast(d.available ? `Plat "${d.name}" affiché au menu` : `Plat "${d.name}" masqué`);
+async function toggleDish(id){
+  if(!isManager || !supabaseClient) return toast("Accès Gérant requis.");
+  const d=dishes.find(x=>String(x.id)===String(id)); if(!d)return;
+  const next=!d.available;
+  const r=await supabaseClient.from(activeDishTable).update({available:next}).eq("id",d.id);
+  if(r.error){console.error(r.error);return toast("Modification impossible : "+r.error.message);}
+  await loadMenuFromSupabase();renderAdmin();
+  toast(next?`Plat "${d.name}" publié pour les clients.`:`Plat "${d.name}" masqué.`);
 }
 
-function deleteDish(id){
-  const d = dishes.find(x=>String(x.id)===String(id));
-  if(!d) return;
-  if(!confirm(`Supprimer définitivement le plat "${d.name}" ? Il ne sera plus visible sur le site.`)) return;
-  dishes = dishes.filter(x=>String(x.id)!==String(id));
-  saveStorage("dfc_dishes", dishes);
-  renderAdmin();
-  renderClientMenu();
-  toast(`Plat "${d.name}" supprimé.`);
+async function deleteDish(id){
+  if(!isManager || !supabaseClient) return toast("Accès Gérant requis.");
+  const d=dishes.find(x=>String(x.id)===String(id)); if(!d)return;
+  if(!confirm(`Supprimer définitivement le plat "${d.name}" ? Il sera retiré du menu partagé.`))return;
+  const r=await supabaseClient.from(activeDishTable).delete().eq("id",d.id);
+  if(r.error){console.error(r.error);return toast("Suppression impossible : "+r.error.message);}
+  await loadMenuFromSupabase();renderAdmin();
+  toast(`Plat "${d.name}" supprimé de Supabase.`);
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-  renderClientMenu();
+
+window.addEventListener("DOMContentLoaded", async () => {
   updateCartBadges();
+  renderClientMenu();
+  if(!supabaseClient){
+    toast("Configuration Supabase à compléter : URL du projet + clé publishable.");
+    return;
+  }
+  await refreshSupabaseData(true);
+  startSupabaseRealtime();
+  // Actualisation de secours si Realtime n'est pas activé dans Supabase.
+  setInterval(()=>refreshSupabaseData(false),20000);
+  const {data}=await supabaseClient.auth.getSession();
+  if(data?.session?.user){
+    const p=await supabaseClient.from("profiles").select("*").eq("id",data.session.user.id).maybeSingle();
+    const role=String(p.data?.role||"").trim().toLowerCase();
+    if(!p.error && p.data && p.data.active!==false && ["gérant","gerant","manager"].includes(role)){
+      isManager=true;
+      await refreshSupabaseData(false);
+      showView("admin");
+    }else{
+      await supabaseClient.auth.signOut();
+    }
+  }
 });
 </script>
 
 </body>
-</html>
+  </html>
