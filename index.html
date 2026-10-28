@@ -1353,7 +1353,7 @@ async function submitClientOrder(e){
   try{await refreshSupabaseData(false)}catch(_){}
   const waMsg=`*COMMANDE VAN KA RESTAU (${saved.order_number||orderNumber})*\\n\\n👤 *Client :* ${name}\\n📞 *Téléphone :* ${phone}\\n🛵 *Service :* ${type}\\n💳 *Paiement :* ${pay}\\n${note?`📍 *Note :* ${note}\\n`:""}\\n*PLATS :*\\n${items.map(i=>`• ${i.qty} × ${i.name} (${money(i.price*i.qty)})`).join("\\n")}\\n\\n💰 *TOTAL : ${money(total)}*`;
   if(confirm("Commande enregistrée dans la base de données. Voulez-vous aussi envoyer les détails au restaurant par WhatsApp ?")){
-    window.open("https://wa.me/22394866798?text="+encodeURIComponent(waMsg),"_blank");
+    window.open("https://wa.me/22393076765?text="+encodeURIComponent(waMsg),"_blank");
   }
 }
 
@@ -1396,7 +1396,7 @@ async function submitClientBooking(e){
   await refreshSupabaseData(false);
   const waMsg=`*RÉSERVATION VAN KA RESTAU (${saved.reservation_number||saved.id||reservationNumber})*\\n\\n👤 *Nom :* ${name}\\n📞 *Téléphone :* ${phone}\\n📅 *Date :* ${date} à ${time}\\n👥 *Personnes :* ${people}\\n${note?`💬 *Note :* ${note}`:""}`;
   if(confirm("Réservation enregistrée dans la base de données. Voulez-vous aussi envoyer les détails au restaurant par WhatsApp ?")){
-    window.open("https://wa.me/22394866798?text="+encodeURIComponent(waMsg),"_blank");
+    window.open("https://wa.me/22393076765?text="+encodeURIComponent(waMsg),"_blank");
   }
 }
 
