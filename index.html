@@ -559,8 +559,8 @@ footer {
 <div class="creator-top">
   <span class="creator-content">
     💻 Réalisé par <strong>MOH-TECH-AWARD</strong> —
-    <a href="https://wa.me/22393076765 " target="_blank" rel="noopener noreferrer">
-      
+    <a href="https://wa.me/22393076765" target="_blank" rel="noopener noreferrer">
+      📱 WhatsApp : +223 94 86 67 98
     </a>
   </span>
 </div>
@@ -698,7 +698,7 @@ footer {
     </div>
     <div>
       <h4 style="color:var(--gold);margin-bottom:6px">Contact & Commandes</h4>
-      <p>📞 +22393076765<br><br>📍 Sadiola, Mali</p>
+      <p>📞 +223 68 72 78 77<br>💬 WhatsApp : +223 94 86 67 98<br>📍 Sadiola, Mali</p>
     </div>
   </div>
 </footer>
@@ -1351,9 +1351,21 @@ async function submitClientOrder(e){
   renderAdmin();
   toast("Commande "+(saved.order_number||orderNumber)+" enregistrée dans Supabase !");
   try{await refreshSupabaseData(false)}catch(_){}
-  const waMsg=`*COMMANDE VAN KA RESTAU (${saved.order_number||orderNumber})*\\n\\n👤 *Client :* ${name}\\n📞 *Téléphone :* ${phone}\\n🛵 *Service :* ${type}\\n💳 *Paiement :* ${pay}\\n${note?`📍 *Note :* ${note}\\n`:""}\\n*PLATS :*\\n${items.map(i=>`• ${i.qty} × ${i.name} (${money(i.price*i.qty)})`).join("\\n")}\\n\\n💰 *TOTAL : ${money(total)}*`;
-  if(confirm("Commande enregistrée dans la base de données. Voulez-vous aussi envoyer les détails au restaurant par WhatsApp ?")){
-    window.open("https://wa.me/22394866798?text="+encodeURIComponent(waMsg),"_blank");
+  const waMsg=`*COMMANDE VAN KA RESTAU (${saved.order_number||orderNumber})*
+
+👤 *Client :* ${name}
+📞 *Téléphone :* ${phone}
+🛵 *Service :* ${type}
+💳 *Paiement :* ${pay}
+${note?`📍 *Note :* ${note}
+`:""}
+*PLATS :*
+${items.map(i=>`• ${i.qty} × ${i.name} (${money(i.price*i.qty)})`).join("\n")}
+
+💰 *TOTAL : ${money(total)}*`;
+  if(confirm("Commande enregistrée dans la base de données. Voulez-vous ouvrir WhatsApp pour transmettre les détails au restaurant (+223 93 07 67 65) ?")){
+    // Redirection dans le même onglet : évite le blocage des fenêtres pop-up sur Android.
+    window.location.href="https://wa.me/22393076765?text="+encodeURIComponent(waMsg);
   }
 }
 
@@ -1394,9 +1406,16 @@ async function submitClientBooking(e){
   closeModal("bookingModal");e.target.reset();
   toast("Réservation enregistrée dans Supabase !");
   await refreshSupabaseData(false);
-  const waMsg=`*RÉSERVATION VAN KA RESTAU (${saved.reservation_number||saved.id||reservationNumber})*\\n\\n👤 *Nom :* ${name}\\n📞 *Téléphone :* ${phone}\\n📅 *Date :* ${date} à ${time}\\n👥 *Personnes :* ${people}\\n${note?`💬 *Note :* ${note}`:""}`;
-  if(confirm("Réservation enregistrée dans la base de données. Voulez-vous aussi envoyer les détails au restaurant par WhatsApp ?")){
-    window.open("https://wa.me/22394866798?text="+encodeURIComponent(waMsg),"_blank");
+  const waMsg=`*RÉSERVATION VAN KA RESTAU (${saved.reservation_number||saved.id||reservationNumber})*
+
+👤 *Nom :* ${name}
+📞 *Téléphone :* ${phone}
+📅 *Date :* ${date} à ${time}
+👥 *Personnes :* ${people}
+${note?`💬 *Note :* ${note}`:""}`;
+  if(confirm("Réservation enregistrée dans la base de données. Voulez-vous ouvrir WhatsApp pour transmettre les détails au restaurant (+223 93 07 67 65) ?")){
+    // Redirection dans le même onglet : évite le blocage des fenêtres pop-up sur Android.
+    window.location.href="https://wa.me/22393076765?text="+encodeURIComponent(waMsg);
   }
 }
 
