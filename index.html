@@ -689,7 +689,7 @@ footer {
       <h3>dugukla-food-club 🇲🇱</h3>
       <p>Les saveurs culinaires de Sadiola dans votre assiette.<br>Une expérience gourmande unique au Mali.</p>
       <div style="margin-top:10px;background:#2d211b;padding:6px 10px;border-radius:10px;display:inline-block">
-        
+        💻 Créé par <strong>MOH-TECH-AWARD</strong> (📱 +223 94 86 67 98)
       </div>
     </div>
     <div>
@@ -698,7 +698,7 @@ footer {
     </div>
     <div>
       <h4 style="color:var(--gold);margin-bottom:6px">Contact & Commandes</h4>
-      <p>📞 +223  93076765  <br>💬 <br>📍 Sadiola, Mali</p>
+      <p>📞 +223 68 72 78 77<br>💬 WhatsApp : +223 94 86 67 98<br>📍 Sadiola, Mali</p>
     </div>
   </div>
 </footer>
@@ -1353,7 +1353,7 @@ async function submitClientOrder(e){
   try{await refreshSupabaseData(false)}catch(_){}
   const waMsg=`*COMMANDE VAN KA RESTAU (${saved.order_number||orderNumber})*\\n\\n👤 *Client :* ${name}\\n📞 *Téléphone :* ${phone}\\n🛵 *Service :* ${type}\\n💳 *Paiement :* ${pay}\\n${note?`📍 *Note :* ${note}\\n`:""}\\n*PLATS :*\\n${items.map(i=>`• ${i.qty} × ${i.name} (${money(i.price*i.qty)})`).join("\\n")}\\n\\n💰 *TOTAL : ${money(total)}*`;
   if(confirm("Commande enregistrée dans la base de données. Voulez-vous aussi envoyer les détails au restaurant par WhatsApp ?")){
-    window.open("https://wa.me/22393076765?text="+encodeURIComponent(waMsg),"_blank");
+    window.open("https://wa.me/22394866798?text="+encodeURIComponent(waMsg),"_blank");
   }
 }
 
@@ -1396,7 +1396,7 @@ async function submitClientBooking(e){
   await refreshSupabaseData(false);
   const waMsg=`*RÉSERVATION VAN KA RESTAU (${saved.reservation_number||saved.id||reservationNumber})*\\n\\n👤 *Nom :* ${name}\\n📞 *Téléphone :* ${phone}\\n📅 *Date :* ${date} à ${time}\\n👥 *Personnes :* ${people}\\n${note?`💬 *Note :* ${note}`:""}`;
   if(confirm("Réservation enregistrée dans la base de données. Voulez-vous aussi envoyer les détails au restaurant par WhatsApp ?")){
-    window.open("https://wa.me/22393076765?text="+encodeURIComponent(waMsg),"_blank");
+    window.open("https://wa.me/22394866798?text="+encodeURIComponent(waMsg),"_blank");
   }
 }
 
@@ -1542,6 +1542,77 @@ async function updateBookingStatus(id,newStatus){
   b.status=newStatus;renderAdmin();toast("Statut de réservation enregistré.");
 }
 
+// Suppression sécurisée des commandes et réservations depuis le tableau de bord Gérant.
+async function deleteOrder(id){
+  if(!isManager || !supabaseClient){
+    return toast("Accès Gérant requis.");
+  }
+
+  const o=orders.find(x=>String(x.dbId)===String(id)||String(x.id)===String(id));
+  if(!o || o.dbId===undefined || o.dbId===null){
+    return toast("Commande introuvable dans Supabase.");
+  }
+
+  if(!confirm("Supprimer définitivement la commande "+o.id+" de "+o.name+" ?\n\nLe chiffre d'affaires sera recalculé automatiquement.")) return;
+
+  // Supprimer d'abord les articles liés, si la table existe.
+  let lineTableFound=false;
+  for(const table of ["orders_items","order_items"]){
+    const child=await supabaseClient.from(table).delete().eq("order_id",o.dbId);
+    if(!child.error){
+      lineTableFound=true;
+      break;
+    }
+    const message=child.error.message||"";
+    if(/relation .* does not exist|could not find the table|schema cache/i.test(message)) continue;
+    console.error("Suppression des articles de commande :",child.error);
+    return toast("Impossible de supprimer les articles : "+message);
+  }
+
+  const result=await supabaseClient.from("orders").delete().eq("id",o.dbId);
+  if(result.error){
+    console.error("Suppression commande :",result.error);
+    return toast("Commande non supprimée : "+result.error.message);
+  }
+
+  try{
+    await loadOrdersFromSupabase();
+  }catch(error){
+    console.error("Actualisation commandes :",error);
+    orders=orders.filter(x=>String(x.dbId)!==String(o.dbId));
+  }
+  renderAdmin();
+  toast("Commande supprimée. Chiffre d'affaires recalculé.");
+}
+
+async function deleteBooking(id){
+  if(!isManager || !supabaseClient){
+    return toast("Accès Gérant requis.");
+  }
+
+  const b=bookings.find(x=>String(x.dbId)===String(id)||String(x.id)===String(id));
+  if(!b || b.dbId===undefined || b.dbId===null){
+    return toast("Réservation introuvable dans Supabase.");
+  }
+
+  if(!confirm("Supprimer définitivement la réservation "+b.id+" de "+b.name+" ?")) return;
+
+  const result=await supabaseClient.from(activeReservationTable).delete().eq("id",b.dbId);
+  if(result.error){
+    console.error("Suppression réservation :",result.error);
+    return toast("Réservation non supprimée : "+result.error.message);
+  }
+
+  try{
+    await loadBookingsFromSupabase();
+  }catch(error){
+    console.error("Actualisation réservations :",error);
+    bookings=bookings.filter(x=>String(x.dbId)!==String(b.dbId));
+  }
+  renderAdmin();
+  toast("Réservation supprimée.");
+}
+
 function renderAdmin(){
   document.getElementById("statOrders").textContent = orders.length;
   document.getElementById("statBookings").textContent = bookings.length;
@@ -1590,9 +1661,12 @@ function renderAdmin(){
             <b>${o.id} — ${o.name}</b><br>
             <small style="color:var(--muted)">📞 ${o.phone} • ${o.type} • <b>${money(o.total)}</b> • <span style="font-weight:800;color:var(--primary)">${o.status}</span></small>
           </div>
-          <div style="display:flex;gap:8px;align-items:center">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
             <button class="btn btnPrimary" style="padding:6px 12px;font-size:12px" onclick="event.stopPropagation();viewOrderDetails('${o.id}')">
               👁️ Afficher informations
+            </button>
+            <button class="btn btnDanger" style="padding:6px 12px;font-size:12px" onclick="event.stopPropagation();deleteOrder('${o.dbId}')">
+              🗑️ Supprimer
             </button>
           </div>
         </div>
@@ -1610,11 +1684,14 @@ function renderAdmin(){
             <small style="color:var(--muted)">📅 ${b.date} à ${b.time} • 👥 <b>${b.people} pers.</b> • 📞 ${b.phone}</small>
             ${b.note ? `<br><small style="font-style:italic">Note : ${b.note}</small>` : ''}
           </div>
-          <div style="display:flex;gap:6px;align-items:center">
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
             <button class="btn btnLight" style="padding:6px 10px;font-size:12px" onclick="event.stopPropagation();viewBookingDetails('${b.id}')">
               Détails
             </button>
             <a href="https://wa.me/${b.phone.replace(/[^0-9]/g,'')}" target="_blank" class="btn btnGold" style="padding:6px 10px;font-size:12px" onclick="event.stopPropagation()">💬 WhatsApp</a>
+            <button class="btn btnDanger" style="padding:6px 10px;font-size:12px" onclick="event.stopPropagation();deleteBooking('${b.dbId}')">
+              🗑️ Supprimer
+            </button>
           </div>
         </div>
       `).join("") : '<div style="text-align:center;padding:30px;color:var(--muted)">Aucune réservation pour le moment.</div>'}
@@ -1864,4 +1941,4 @@ window.addEventListener("DOMContentLoaded", async () => {
 </script>
 
 </body>
-</html>
+  </html>
