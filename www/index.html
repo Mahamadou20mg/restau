@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#7a1f16">
+<title>VAN KA RESTAU — Restaurant malien 🇲🇱</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --primary: #7a1f16;
+  --primary-hover: #96271c;
+  --gold: #d89b32;
+  --cream: #fff8ed;
+  --dark: #1d1714;
+  --muted: #766b64;
+  --white: #ffffff;
+  --green: #237a4b;
+  --red: #b3261e;
+  --radius: 16px;
+  --shadow: 0 8px 24px rgba(42, 22, 12, 0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--cream);
+  color: var(--dark);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 74px;
+}
+
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; border: 0; outline: none; }
+a { text-decoration: none; color: inherit; }
+
+.creator-top {
+  width: 100%;
+  text-align: center;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #15100d;
+  color: #fff;
+  overflow: hidden;
+}
+.creator-content {
+  display: inline-block;
+  animation: creatorMove 3s ease-in-out infinite;
+}
+.creator-content strong { font-weight: 900; letter-spacing: .04em; color: #ffc107; }
+.creator-content a { color: #ffc107; font-weight: 800; }
+@keyframes creatorMove {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(6px); }
+}
+
+.topbar {
+  background: var(--dark);
+  color: #fff;
+  padding: 7px 14px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #ffffffee;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid #eadbca;
+}
+.nav {
+  max-width: 1100px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 900;
+  color: var(--primary);
+  font-size: 19px;
+  cursor: pointer;
+}
+.logoMark {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  color: #fff;
+  border: 3px solid var(--gold);
+  font-weight: 900;
+  font-size: 14px;
+}
+.navlinks { display: flex; gap: 8px; align-items: center; }
+.navBtn {
+  background: transparent;
+  padding: 9px 14px;
+  border-radius: 12px;
+  color: var(--dark);
+  font-weight: 700;
+  font-size: 14px;
+  transition: .2s;
+}
+.navBtn:hover, .navBtn.active { background: #f5eee6; }
+.cartBtn {
+  background: var(--primary) !important;
+  color: #fff !important;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cartBadge {
+  background: var(--gold);
+  color: #000;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 2px 7px;
+  border-radius: 99px;
+}
+
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px;
+  width: 100%;
+  flex: 1;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.2fr .8fr;
+  gap: 24px;
+  align-items: center;
+  background: #fff;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: var(--shadow);
+  border: 1px solid #f0e4d7;
+  margin-bottom: 24px;
+}
+.heroTag {
+  display: inline-block;
+  background: #e8f6ee;
+  color: var(--green);
+  font-weight: 900;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 99px;
+  margin-bottom: 12px;
+}
+.hero h1 {
+  font-size: clamp(28px, 6vw, 48px);
+  line-height: 1.05;
+  margin-bottom: 12px;
+  font-weight: 900;
+}
+.hero h1 span { color: var(--primary); }
+.hero p {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn {
+  padding: 11px 16px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: .2s;
+}
+.btnPrimary { background: var(--primary); color: #fff; }
+.btnPrimary:hover { background: var(--primary-hover); }
+.btnGold { background: var(--gold); color: #251a10; }
+.btnGold:hover { background: #c48b29; }
+.btnLight { background: #f5eee6; color: var(--dark); border: 1px solid #eadbca; }
+.btnLight:hover { background: #ede1d5; }
+.btnDanger { background: #fbe8e6; color: var(--red); }
+
+.heroCard {
+  min-height: 220px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #7a1f16, #b94d29 60%, #d89b32);
+  display: flex;
+  align-items: end;
+  padding: 22px;
+  color: #fff;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+.heroCard:before {
+  content: "🍛";
+  font-size: 120px;
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  opacity: .85;
+}
+.heroCardContent {
+  position: relative;
+  z-index: 2;
+  background: #00000077;
+  backdrop-filter: blur(5px);
+  border-radius: 14px;
+  padding: 12px 14px;
+  border: 1px solid #ffffff33;
+}
+
+.sectionHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.sectionHead h2 { font-size: 24px; font-weight: 900; }
+.categories {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+  scrollbar-width: none;
+}
+.categories::-webkit-scrollbar { display: none; }
+.chip {
+  white-space: nowrap;
+  border: 1px solid #eadbca;
+  background: #fff;
+  padding: 8px 14px;
+  border-radius: 99px;
+  font-weight: 700;
+  font-size: 13px;
+  transition: .2s;
+}
+.chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+.card {
+  background: #fff;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  border: 1px solid #f0e4d7;
+  display: flex;
+  flex-direction: column;
+  transition: .2s;
+}
+.dishPhoto {
+  height: 175px;
+  width: 100%;
+  object-fit: cover;
+  background: #fff0d7;
+  display: grid;
+  place-items: center;
+  font-size: 64px;
+  overflow: hidden;
+}
+.dishPhoto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cardBody {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+  gap: 10px;
+}
+.cardTitle { font-size: 16px; font-weight: 900; color: var(--dark); margin-bottom: 3px; }
+.cardDesc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+.cardBottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #f8eee4;
+  padding-top: 10px;
+}
+.price { font-size: 17px; font-weight: 900; color: var(--primary); }
+
+.aboutGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-top: 28px;
+}
+.aboutBox {
+  background: #fff;
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid #f0e4d7;
+}
+.aboutBox h4 { font-size: 14px; margin: 6px 0 4px; font-weight: 900; }
+.aboutBox p { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+footer {
+  background: var(--dark);
+  color: #fff;
+  padding: 30px 16px;
+  margin-top: 30px;
+  border-top: 2px solid #3d2d24;
+}
+.footerInner {
+  max-width: 1100px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 20px;
+  font-size: 13px;
+}
+.footerInner h3 { color: var(--gold); margin-bottom: 6px; }
+.footerInner p { color: #d3c7be; line-height: 1.5; }
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .7);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modalOverlay.active { display: flex; }
+@media(min-width: 600px) {
+  .modalOverlay { align-items: center; padding: 16px; }
+}
+.modalContent {
+  background: #fff;
+  width: min(550px, 100%);
+  max-height: 88vh;
+  overflow-y: auto;
+  border-radius: 24px 24px 0 0;
+  padding: 20px;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.2);
+}
+@media(min-width: 600px) {
+  .modalContent { border-radius: 24px; }
+}
+.modalHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 14px;
+}
+.modalHead h3 { font-size: 18px; font-weight: 900; }
+.closeBtn {
+  background: #f1e9e0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.formGroup { margin-bottom: 12px; }
+.formGroup label { display: block; font-weight: 800; font-size: 12px; margin-bottom: 4px; }
+.formGroup input, .formGroup select, .formGroup textarea {
+  width: 100%;
+  border: 1px solid #decfc0;
+  border-radius: 11px;
+  padding: 11px;
+  background: #fff;
+  font-size: 13px;
+}
+.formRow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.cartItem { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+.cartQty { display: flex; align-items: center; gap: 6px; }
+.qtyBtn { width: 28px; height: 28px; border-radius: 8px; background: #eee; font-weight: 900; }
+.cartTotalRow { display: flex; justify-content: space-between; font-size: 18px; font-weight: 900; padding: 14px 0; }
+
+.adminView { display: none; }
+.adminView.active { display: block; }
+.adminBanner {
+  background: linear-gradient(135deg, #5b1711, #7a1f16);
+  color: #fff;
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+.statBox {
+  background: #fff;
+  color: var(--dark);
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+.statBox span { font-size: 10px; color: var(--muted); font-weight: 800; display: block; text-transform: uppercase; }
+.statBox b { font-size: 19px; color: var(--primary); margin-top: 2px; display: block; }
+
+.adminTabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+  scrollbar-width: none;
+}
+.adminTabs::-webkit-scrollbar { display: none; }
+.adminTabBtn {
+  background: #eee5dc;
+  padding: 9px 14px;
+  border-radius: 11px;
+  font-weight: 800;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.adminTabBtn.active { background: var(--primary); color: #fff; }
+
+.adminRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #eee;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.adminDishThumb {
+  width: 58px;
+  height: 58px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #fff0d7;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.adminDishThumb img { width: 100%; height: 100%; object-fit: cover; }
+
+.reportBox { background: #fff; border: 1px solid #eee; border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+.reportRow { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #f2f2f2; font-size: 13px; }
+.reportRow:last-child { border-bottom: none; }
+.progressBar { background: #eee; border-radius: 99px; height: 8px; overflow: hidden; margin-top: 4px; }
+.progressFill { background: var(--primary); height: 100%; border-radius: 99px; }
+
+.toast {
+  position: fixed;
+  bottom: 84px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  background: var(--dark);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 12px;
+  z-index: 300;
+  font-weight: 700;
+  font-size: 13px;
+  box-shadow: var(--shadow);
+  transition: .3s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.toast.active { transform: translateX(-50%) translateY(0); }
+
+/* BARRE MOBILE EN BAS */
+.mobileNav { display: none; }
+@media(max-width: 760px) {
+  .navlinks { display: none !important; }
+  .mobileNav {
+    display: flex !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: #ffffff !important;
+    z-index: 150 !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    padding: 6px 4px !important;
+    border-top: 1px solid #eadfd4 !important;
+    box-shadow: 0 -3px 15px rgba(0, 0, 0, 0.08) !important;
+  }
+  .mobileNav button {
+    border: 0 !important;
+    background: transparent !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: var(--dark) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 2px !important;
+    padding: 4px 8px !important;
+    border-radius: 10px !important;
+    position: relative !important;
+    cursor: pointer !important;
+    flex: 1 !important;
+  }
+  .mobileNav button.active {
+    color: var(--primary) !important;
+    background: #fff3e6 !important;
+  }
+  .mobileNav .badge {
+    position: absolute;
+    top: 0;
+    right: 18%;
+    background: var(--gold);
+    color: #000;
+    font-size: 9px;
+    font-weight: 900;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero { grid-template-columns: 1fr; padding: 20px; }
+  .grid { grid-template-columns: 1fr 1fr; }
+  .footerInner { grid-template-columns: 1fr; }
+  .formRow { grid-template-columns: 1fr; }
+}
+
+@media(max-width: 440px) {
+  .grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="creator-top">
+  <span class="creator-content">
+    💻 Réalisé par <strong>MOH-TECH-AWARD</strong> 
+    <a href="https://wa.me/22393076765" target="_blank" rel="noopener noreferrer">
+      
+    </a>
+  </span>
+</div>
+
+<div class="topbar">
+  🇲🇱 Cuisine malienne • Commandes & réservations en ligne • Sadiola
+</div>
+
+<header>
+  <div class="nav">
+    <div class="logo" onclick="showView('home')">
+      <div class="logoMark">DFC</div>
+      <div>
+        <div style="line-height:1">dugukla-food-club</div>
+        <small style="font-size:10px;color:var(--muted)">Restaurant Sadiola 🇲🇱</small>
+      </div>
+    </div>
+    
+    <div class="navlinks">
+      <button class="navBtn active" id="btnNavHome" onclick="showView('home')">Accueil</button>
+      <button class="navBtn" id="btnNavMenu" onclick="showView('menu')">Menu</button>
+      <button class="navBtn" onclick="openModal('bookingModal')">📅 Réserver</button>
+      <button class="navBtn" onclick="handleManagerBtnClick()">🔐 Gérant</button>
+      <button class="navBtn cartBtn" onclick="openModal('cartModal')">
+        🛒 Panier <span class="cartBadge" id="cartCountBadge">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="clientView">
+    <section class="hero" id="heroSection">
+      <div>
+        <span class="heroTag">Restaurant de Sadiola 🇲🇱</span>
+        <h1>Les saveurs de <span>sadiola</span> dans votre assiette.</h1>
+        <p>Découvrez nos plats traditionnels maliens cuisinés avec amour. Commandez en ligne pour une livraison rapide ou réservez votre table en quelques clics.</p>
+        <div class="actions">
+          <button class="btn btnPrimary" onclick="showView('menu')">🍛 Voir le menu</button>
+          <button class="btn btnGold" onclick="openModal('bookingModal')">📅 Réserver une table</button>
+        </div>
+      </div>
+      <div class="heroCard">
+        <div class="heroCardContent">
+          <b>Dugukla-food-club</b><br>
+          <small>Une cuisine généreuse, authentique et chaleureuse.</small>
+        </div>
+      </div>
+    </section>
+
+    <section id="menuSection">
+      <div class="sectionHead">
+        <div>
+          <h2 id="menuTitle">Nos Plats Disponibles</h2>
+          <small style="color:var(--muted)">Ajoutez vos plats au panier pour commander</small>
+        </div>
+        <button class="btn btnLight" onclick="openModal('cartModal')">
+          🛒 Mon Panier (<span id="cartCountBadge2">0</span>)
+        </button>
+      </div>
+
+      <div class="categories" id="catFilterBox"></div>
+      <div class="grid" id="dishesGrid"></div>
+    </section>
+
+    <section class="aboutGrid">
+      <div class="aboutBox">
+        <div style="font-size:26px">🍲</div>
+        <h4>Cuisine Authentique</h4>
+        <p>Des recettes maliennes authentiques préparées avec des ingrédients frais du terroir.</p>
+      </div>
+      <div class="aboutBox">
+        <div style="font-size:26px">🛵</div>
+        <h4>Livraison & À Emporter</h4>
+        <p>Commandez depuis chez vous et recevez votre repas chaud en un temps record.</p>
+      </div>
+      <div class="aboutBox">
+        <div style="font-size:26px">📅</div>
+        <h4>Réservation Rapide</h4>
+        <p>Réservez votre table à l'avance pour profiter d'un accueil VIP sans aucune attente.</p>
+      </div>
+      <div class="aboutBox">
+        <div style="font-size:26px">💬</div>
+        <h4>WhatsApp Direct</h4>
+        <p>Un contact immédiat pour poser vos questions ou personnaliser votre commande.</p>
+      </div>
+    </section>
+  </div>
+
+  <div id="adminView" class="adminView">
+    <div class="adminBanner">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div>
+          <small style="color:#ffd899;font-weight:900">ESPACE PROFESSIONNEL DE GESTION</small>
+          <h2 style="font-size:22px;margin-top:2px">Tableau de bord Restaurant</h2>
+          <small>dugukla-food-club • Sadiola 🇲🇱</small>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btnGold" onclick="openDishModal()">+ Publier un plat</button>
+          <button class="btn btnLight" onclick="adminLogout()">Déconnexion</button>
+        </div>
+      </div>
+
+      <div class="statsGrid">
+        <div class="statBox"><span>Commandes</span><b id="statOrders">0</b></div>
+        <div class="statBox"><span>Réservations</span><b id="statBookings">0</b></div>
+        <div class="statBox"><span>Plats au menu</span><b id="statDishes">0</b></div>
+        <div class="statBox"><span>Chiffre Ventes</span><b id="statRevenue">0 F</b></div>
+      </div>
+    </div>
+
+    <div class="adminTabs">
+      <button class="adminTabBtn active" id="tabBtnDishes" onclick="switchAdminTab('dishes', this)">🍛 Menu & Photos</button>
+      <button class="adminTabBtn" id="tabBtnOrders" onclick="switchAdminTab('orders', this)">📦 Commandes</button>
+      <button class="adminTabBtn" id="tabBtnBookings" onclick="switchAdminTab('bookings', this)">📅 Réservations</button>
+      <button class="adminTabBtn" id="tabBtnReports" onclick="switchAdminTab('reports', this)">📈 Rapport & Calculs</button>
+    </div>
+
+    <div id="adminTabContent"></div>
+  </div>
+</main>
+
+<footer>
+  <div class="footerInner">
+    <div>
+      <h3>dugukla-food-club 🇲🇱</h3>
+      <p>Les saveurs culinaires de Sadiola dans votre assiette.<br>Une expérience gourmande unique au Mali.</p>
+      <div style="margin-top:10px;background:#2d211b;padding:6px 10px;border-radius:10px;display:inline-block">
+        💻 Créé par <strong>MOH-TECH-AWARD</strong> (📱 +223 94 86 67 98)
+      </div>
+    </div>
+    <div>
+      <h4 style="color:var(--gold);margin-bottom:6px">Horaires d'Ouverture</h4>
+      <p>Lundi au Dimanche<br>10h00 — 00h00 en continu</p>
+    </div>
+    <div>
+      <h4 style="color:var(--gold);margin-bottom:6px">Contact & Commandes</h4>
+      <p>📞 +223 93 07 67 65<br>💬 WhatsApp : +223 93 07 67 65<br>📍 Sadiola, Mali</p>
+    </div>
+  </div>
+</footer>
+
+<div class="mobileNav" id="mobileBottomNav">
+  <button id="mbNavHome" class="active" onclick="showView('home')">
+    <span>🏠</span>
+    <span>Accueil</span>
+  </button>
+  <button id="mbNavMenu" onclick="showView('menu')">
+    <span>🍛</span>
+    <span>Menu</span>
+  </button>
+  <button id="mbNavBook" onclick="openModal('bookingModal')">
+    <span>📅</span>
+    <span>Réserver</span>
+  </button>
+  <button id="mbNavCart" onclick="openModal('cartModal')">
+    <span>🛒</span>
+    <span class="badge" id="mbCartCountBadge">0</span>
+    <span>Panier</span>
+  </button>
+  <button id="mbNavAdmin" onclick="handleManagerBtnClick()">
+    <span>⚙️</span>
+    <span>Gérant</span>
+  </button>
+</div>
+
+<!-- Modales -->
+<div id="cartModal" class="modalOverlay" onclick="if(event.target===this)closeModal('cartModal')">
+  <div class="modalContent">
+    <div class="modalHead">
+      <h3>🛒 Votre Panier</h3>
+      <button class="closeBtn" onclick="closeModal('cartModal')">×</button>
+    </div>
+    <div id="cartList"></div>
+    <div class="cartTotalRow">
+      <span>Total</span>
+      <span style="color:var(--primary)" id="cartTotalPrice">0 FCFA</span>
+    </div>
+    <button class="btn btnPrimary" style="width:100%" onclick="openCheckout()">
+      Valider la commande →
+    </button>
+  </div>
+</div>
+
+<div id="checkoutModal" class="modalOverlay" onclick="if(event.target===this)closeModal('checkoutModal')">
+  <div class="modalContent">
+    <div class="modalHead">
+      <h3>📦 Finaliser votre Commande</h3>
+      <button class="closeBtn" onclick="closeModal('checkoutModal')">×</button>
+    </div>
+    <form onsubmit="submitClientOrder(event)">
+      <div class="formGroup">
+        <label>Votre Nom complet *</label>
+        <input id="cName" required placeholder="Ex. Ibrahim Traoré">
+      </div>
+      <div class="formGroup">
+        <label>Numéro de Téléphone *</label>
+        <input id="cPhone" required type="tel" placeholder="Ex. +223 70 00 00 00">
+      </div>
+      <div class="formRow">
+        <div class="formGroup">
+          <label>Type de commande</label>
+          <select id="cType">
+            <option>À emporter</option>
+            <option>Livraison</option>
+            <option>Sur place</option>
+          </select>
+        </div>
+        <div class="formGroup">
+          <label>Mode de Paiement</label>
+          <select id="cPay">
+            <option>Orange Money</option>
+            <option>Moov Money</option>
+            <option>Espèces</option>
+          </select>
+        </div>
+      </div>
+      <div class="formGroup">
+        <label>Adresse de livraison ou remarque</label>
+        <textarea id="cNote" rows="2" placeholder="Quartier, point de repère..."></textarea>
+      </div>
+      <button class="btn btnPrimary" style="width:100%" type="submit">
+        ✅ Confirmer la commande
+      </button>
+    </form>
+  </div>
+</div>
+
+<div id="bookingModal" class="modalOverlay" onclick="if(event.target===this)closeModal('bookingModal')">
+  <div class="modalContent">
+    <div class="modalHead">
+      <h3>📅 Réserver une Table</h3>
+      <button class="closeBtn" onclick="closeModal('bookingModal')">×</button>
+    </div>
+    <form onsubmit="submitClientBooking(event)">
+      <div class="formGroup">
+        <label>Votre Nom *</label>
+        <input id="bName" required placeholder="Ex. Ousmane Diarra">
+      </div>
+      <div class="formGroup">
+        <label>Numéro de Téléphone *</label>
+        <input id="bPhone" required type="tel" placeholder="Ex. +223 76 00 00 00">
+      </div>
+      <div class="formRow">
+        <div class="formGroup">
+          <label>Date *</label>
+          <input id="bDate" required type="date">
+        </div>
+        <div class="formGroup">
+          <label>Heure *</label>
+          <input id="bTime" required type="time" value="19:30">
+        </div>
+      </div>
+      <div class="formGroup">
+        <label>Nombre de personnes *</label>
+        <input id="bPeople" required type="number" min="1" max="50" value="2">
+      </div>
+      <div class="formGroup">
+        <label>Précision ou message spécial</label>
+        <textarea id="bNote" rows="2" placeholder="Anniversaire, table en terrasse..."></textarea>
+      </div>
+      <button class="btn btnGold" style="width:100%" type="submit">
+        📅 Valider la réservation
+      </button>
+    </form>
+  </div>
+</div>
+
+<div id="loginModal" class="modalOverlay" onclick="if(event.target===this)closeModal('loginModal')">
+  <div class="modalContent">
+    <div class="modalHead">
+      <h3>🔐 Connexion Gérant</h3>
+      <button class="closeBtn" onclick="closeModal('loginModal')">×</button>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px">
+      Saisissez vos identifiants pour ouvrir le tableau de bord du restaurant.
+    </p>
+    <form onsubmit="handleLoginSubmit(event)">
+      <div class="formGroup">
+        <label>Identifiant / Email</label>
+        <input id="loginUser" required type="email" placeholder="votre@email.com" autocomplete="username">
+      </div>
+      <div class="formGroup">
+        <label>Mot de passe</label>
+        <input id="loginPass" required type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn btnPrimary" style="width:100%" type="submit">
+        Ouvrir mon Dashboard
+      </button>
+    </form>
+  </div>
+</div>
+
+<div id="orderDetailModal" class="modalOverlay" onclick="if(event.target===this)closeModal('orderDetailModal')">
+  <div class="modalContent">
+    <div class="modalHead">
+      <div>
+        <small style="color:var(--primary);font-weight:900">FICHE COMMANDE</small>
+        <h3 id="odId">DFC-00000</h3>
+      </div>
+      <button class="closeBtn" onclick="closeModal('orderDetailModal')">×</button>
+    </div>
+    <div id="odContent" style="font-size:13px;line-height:1.6"></div>
+  </div>
+</div>
+
+<div id="bookingDetailModal" class="modalOverlay" onclick="if(event.target===this)closeModal('bookingDetailModal')">
+  <div class="modalContent">
+    <div class="modalHead">
+      <div>
+        <small style="color:var(--gold);font-weight:900">FICHE RÉSERVATION</small>
+        <h3 id="bdId">RES-0000</h3>
+      </div>
+      <button class="closeBtn" onclick="closeModal('bookingDetailModal')">×</button>
+    </div>
+    <div id="bdContent" style="font-size:13px;line-height:1.6"></div>
+  </div>
+</div>
+
+<div id="dishModal" class="modalOverlay" onclick="if(event.target===this)closeModal('dishModal')">
+  <div class="modalContent">
+    <div class="modalHead">
+      <h3 id="dishModalTitle">Ajouter un Plat au Menu</h3>
+      <button class="closeBtn" onclick="closeModal('dishModal')">×</button>
+    </div>
+    <form onsubmit="saveDishForm(event)">
+      <input type="hidden" id="editDishId">
+      <div class="formGroup">
+        <label>Nom du plat *</label>
+        <input id="dishName" required placeholder="Ex. Tigadèguèna Royale">
+      </div>
+      <div class="formRow">
+        <div class="formGroup">
+          <label>Prix (FCFA) *</label>
+          <input id="dishPrice" type="number" min="0" required placeholder="3500">
+        </div>
+        <div class="formGroup">
+          <label>Catégorie</label>
+          <input id="dishCat" placeholder="Plats maliens" value="Plats maliens">
+        </div>
+      </div>
+      <div class="formGroup">
+        <label>Description du plat</label>
+        <textarea id="dishDesc" rows="2" placeholder="Ingrédients, accompagnements..."></textarea>
+      </div>
+      <div class="formGroup">
+        <label>Photo du plat (depuis votre téléphone)</label>
+        <input type="file" id="dishFile" accept="image/*" onchange="previewDishFile(event)">
+        <div id="dishPreviewBox" style="margin-top:10px;display:none;position:relative;display:inline-block">
+          <img id="dishPreviewImg" src="" style="width:100px;height:100px;object-fit:cover;border-radius:12px;border:2px solid var(--gold)">
+          <button type="button" onclick="removeDishPhotoPreview()" style="display:block;color:var(--red);font-size:11px;font-weight:800;margin-top:4px">✕ Retirer la photo</button>
+        </div>
+      </div>
+      <button class="btn btnPrimary" style="width:100%" type="submit">
+        💾 Enregistrer et Publier sur l'Accueil
+      </button>
+    </form>
+  </div>
+</div>
+
+<div id="toastBox" class="toast"></div>
+
+<script>
+// À compléter avec l'URL du projet actuellement ouvert dans Supabase > Project Settings > API Data.
+const SUPABASE_URL = "https://tjryhnpbpnstbbyjyjhs.supabase.co";
+// Utiliser uniquement la clé publishable (sb_publishable_...), jamais une clé secret/service_role.
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_j46_dWqTNeIaCHuZT_88DA_lEerXoVY";
+const SUPABASE_CONFIGURED = SUPABASE_URL.startsWith("https://") &&
+  SUPABASE_URL.endsWith(".supabase.co") &&
+  SUPABASE_PUBLISHABLE_KEY.startsWith("sb_publishable_");
+const supabaseClient = (window.supabase && SUPABASE_CONFIGURED)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+  : null;
+
+
+
+let dishes = []; // Menu chargé depuis Supabase; aucun plat fictif publié par défaut.
+let cart = loadStorage("dfc_cart", []);
+let orders = []; // Commandes chargées depuis Supabase.
+let bookings = []; // Réservations chargées depuis Supabase.
+let isManager = false; // Le dashboard n’est accessible qu’après vérification Supabase Auth + profiles.
+let currentCategory = "Tous";
+let currentUploadedPhotoBase64 = "";
+
+function loadStorage(k, fallback){
+  try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; }
+  catch(e){ return fallback; }
+}
+function saveStorage(k, v){
+  try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){}
+}
+function money(n){
+  return new Intl.NumberFormat("fr-FR").format(n) + " FCFA";
+}
+function toast(msg){
+  const t = document.getElementById("toastBox");
+  t.textContent = msg;
+  t.classList.add("active");
+  setTimeout(()=>t.classList.remove("active"), 2800);
+}
+
+
+// ===== SYNCHRONISATION SUPABASE =====
+// Les clients lisent le menu depuis Supabase; commandes et réservations y sont écrites.
+let activeDishTable = "dishes";
+let activeReservationTable = "reservation";
+let vkRealtimeChannel = null;
+let vkRefreshBusy = false;
+
+function mapDishRow(row){
+  return {
+    id: row.id,
+    name: row.name || "",
+    cat: row.category || row.cat || "Plats maliens",
+    price: Number(row.price || 0),
+    emoji: row.emoji || "🍽️",
+    photo: row.photo_url || row.photo || row.image_url ||
+      (row.photo_path && supabaseClient ? supabaseClient.storage.from("dish-photos").getPublicUrl(row.photo_path).data.publicUrl : ""),
+    desc: row.description || row.desc || "",
+    available: row.available !== false
+  };
+}
+function mapOrderRow(row){
+  let items=row.items;
+  if(typeof items==="string"){try{items=JSON.parse(items)}catch(_){items=[]}}
+  if(!Array.isArray(items)) items=[];
+  return {
+    ...row,
+    dbId:row.id,
+    id:row.order_number || row.order_code || row.id || "Commande",
+    date:row.created_at ? new Date(row.created_at).toLocaleString("fr-FR") : (row.date || ""),
+    name:row.customer_name || row.client_name || row.name || "Client",
+    phone:row.customer_phone || row.client_phone || row.phone || "",
+    type:row.order_type || row.type || "",
+    pay:row.payment_method || row.pay || "",
+    note:row.note || row.address || "",
+    total:Number(row.total || row.total_amount || 0),
+    status:row.status || "Nouvelle",
+    items:items.map(it=>({
+      ...it,
+      id:it.dish_id || it.menu_item_id || it.id,
+      name:it.item_name || it.dish_name || it.name || "Plat",
+      qty:Number(it.quantity || it.qty || 1),
+      price:Number(it.unit_price || it.price || 0)
+    }))
+  };
+}
+function mapBookingRow(row){
+  return {
+    ...row,
+    dbId:row.id,
+    id:row.reservation_number || row.booking_number || row.id || "Réservation",
+    name:row.customer_name || row.client_name || row.name || "Client",
+    phone:row.customer_phone || row.client_phone || row.phone || "",
+    date:row.reservation_date || row.booking_date || row.date || "",
+    time:row.reservation_time || row.booking_time || row.time || "",
+    people:Number(row.people || row.number_of_people || row.guests || 1),
+    note:row.note || row.message || "",
+    status:row.status || "En attente",
+    created_at:row.created_at || ""
+  };
+}
+async function selectRows(table, orderColumn="created_at"){
+  let r=await supabaseClient.from(table).select("*").order(orderColumn,{ascending:false});
+  if(r.error) r=await supabaseClient.from(table).select("*");
+  return r;
+}
+async function loadMenuFromSupabase(){
+  if(!supabaseClient) throw new Error("Supabase n'est pas configuré.");
+  let lastError=null;
+  for(const table of ["dishes","menu_items"]){
+    const r=await selectRows(table);
+    if(!r.error){
+      activeDishTable=table;
+      dishes=(r.data||[]).map(mapDishRow);
+      renderClientMenu();
+      if(isManager) renderAdmin();
+      return true;
+    }
+    lastError=r.error;
+  }
+  throw lastError || new Error("Table du menu introuvable.");
+}
+async function loadOrdersFromSupabase(){
+  const r=await selectRows("orders");
+  if(r.error) throw r.error;
+  const rows=r.data||[];
+  let lineRows=[], lineTable="orders_items";
+  let lr=await supabaseClient.from("orders_items").select("*");
+  if(lr.error){
+    lineTable="order_items";
+    lr=await supabaseClient.from("order_items").select("*");
+  }
+  if(!lr.error) lineRows=lr.data||[];
+  orders=rows.map(row=>{
+    const mapped=mapOrderRow(row);
+    if(!mapped.items.length){
+      mapped.items=lineRows.filter(it=>String(it.order_id)===String(row.id)).map(it=>({
+        id:it.dish_id || it.menu_item_id || it.id,
+        name:it.item_name || it.dish_name || it.name || "Plat",
+        qty:Number(it.quantity || it.qty || 1),
+        price:Number(it.unit_price || it.price || 0)
+      }));
+    }
+    return mapped;
+  });
+}
+async function loadBookingsFromSupabase(){
+  let lastError=null;
+  for(const table of ["reservation","reservations","bookings"]){
+    const r=await selectRows(table);
+    if(!r.error){
+      activeReservationTable=table;
+      bookings=(r.data||[]).map(mapBookingRow);
+      return true;
+    }
+    lastError=r.error;
+    if(!/relation .* does not exist|could not find the table|schema cache/i.test(r.error.message||"")) break;
+  }
+  throw lastError || new Error("Table de réservations introuvable.");
+}
+async function refreshSupabaseData(showErrors=true){
+  if(!supabaseClient || vkRefreshBusy) return false;
+  vkRefreshBusy=true;
+  let ok=true;
+  try{
+    await loadMenuFromSupabase();
+  }catch(e){
+    ok=false; console.error("Chargement menu Supabase:",e);
+    if(showErrors) toast("Menu Supabase : "+(e.message||"erreur de connexion"));
+  }
+  if(isManager){
+    try{await loadOrdersFromSupabase()}catch(e){ok=false;console.error("Chargement commandes:",e);if(showErrors)toast("Commandes : "+(e.message||"erreur Supabase"))}
+    try{await loadBookingsFromSupabase()}catch(e){ok=false;console.error("Chargement réservations:",e);if(showErrors)toast("Réservations : "+(e.message||"erreur Supabase"))}
+    renderAdmin();
+  }
+  vkRefreshBusy=false;
+  return ok;
+}
+function startSupabaseRealtime(){
+  if(!supabaseClient || vkRealtimeChannel) return;
+  try{
+    vkRealtimeChannel=supabaseClient.channel("van-ka-restau-sync")
+      .on("postgres_changes",{event:"*",schema:"public",table:"dishes"},()=>{loadMenuFromSupabase().catch(console.error)})
+      .on("postgres_changes",{event:"*",schema:"public",table:"menu_items"},()=>{loadMenuFromSupabase().catch(console.error)})
+      .on("postgres_changes",{event:"*",schema:"public",table:"orders"},()=>{if(isManager)loadOrdersFromSupabase().then(()=>renderAdmin()).catch(console.error)})
+      .on("postgres_changes",{event:"*",schema:"public",table:"orders_items"},()=>{if(isManager)loadOrdersFromSupabase().then(()=>renderAdmin()).catch(console.error)})
+      .on("postgres_changes",{event:"*",schema:"public",table:"reservation"},()=>{if(isManager)loadBookingsFromSupabase().then(()=>renderAdmin()).catch(console.error)})
+      .subscribe();
+  }catch(e){console.warn("Realtime Supabase non activé; actualisation périodique utilisée.",e)}
+}
+async function uploadDishPhoto(file){
+  if(!file) return "";
+  if(!supabaseClient) throw new Error("Supabase n'est pas configuré.");
+  const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
+  const path="dishes/"+Date.now()+"-"+Math.random().toString(36).slice(2,8)+"."+ext;
+  let lastError=null;
+  for(const bucket of ["dish-photos","menu-images","photos"]){
+    const up=await supabaseClient.storage.from(bucket).upload(path,file,{upsert:true,contentType:file.type||"image/jpeg"});
+    if(!up.error) return supabaseClient.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+    lastError=up.error;
+    if(!/bucket not found|not found/i.test(up.error.message||"")) break;
+  }
+  throw lastError || new Error("Impossible d'envoyer la photo.");
+}
+
+function showView(view){
+  const btnNavHome = document.getElementById("btnNavHome");
+  const btnNavMenu = document.getElementById("btnNavMenu");
+  const mbNavHome = document.getElementById("mbNavHome");
+  const mbNavMenu = document.getElementById("mbNavMenu");
+  const mbNavAdmin = document.getElementById("mbNavAdmin");
+
+  if(btnNavHome) btnNavHome.classList.toggle("active", view==='home');
+  if(btnNavMenu) btnNavMenu.classList.toggle("active", view==='menu');
+  if(mbNavHome) mbNavHome.classList.toggle("active", view==='home');
+  if(mbNavMenu) mbNavMenu.classList.toggle("active", view==='menu');
+  if(mbNavAdmin) mbNavAdmin.classList.toggle("active", view==='admin');
+
+  if(view === 'admin'){
+    document.getElementById("clientView").style.display = "none";
+    document.getElementById("adminView").classList.add("active");
+    renderAdmin();
+  } else {
+    document.getElementById("adminView").classList.remove("active");
+    document.getElementById("clientView").style.display = "block";
+    document.getElementById("heroSection").style.display = (view==='home' ? "grid" : "none");
+    document.getElementById("menuTitle").textContent = (view==='home' ? "Nos Plats Disponibles" : "Notre Menu Complet");
+    renderClientMenu();
+  }
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function handleManagerBtnClick(){
+  if(isManager){
+    showView('admin');
+  } else {
+    document.getElementById("loginUser").value = "";
+    document.getElementById("loginPass").value = "";
+    openModal('loginModal');
+  }
+}
+
+function openModal(id){
+  document.getElementById(id).classList.add("active");
+  if(id==='cartModal') renderCart();
+}
+function closeModal(id){
+  document.getElementById(id).classList.remove("active");
+}
+
+function renderClientMenu(){
+  const cats = ["Tous", ...new Set(dishes.map(d=>d.cat))];
+  const filterBox = document.getElementById("catFilterBox");
+  filterBox.innerHTML = cats.map(c=>`
+    <button class="chip ${currentCategory===c?'active':''}" onclick="setCategory('${c}')">${c}</button>
+  `).join("");
+
+  const list = dishes.filter(d=>d.available && (currentCategory==="Tous" || d.cat===currentCategory));
+  const grid = document.getElementById("dishesGrid");
+
+  if(!list.length){
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)">Aucun plat disponible pour le moment.</div>';
+    return;
+  }
+
+  grid.innerHTML = list.map(d=>`
+    <article class="card">
+      <div class="dishPhoto">
+        ${d.photo ? `<img src="${d.photo}" alt="${d.name}" loading="lazy">` : (d.emoji || '🍽️')}
+      </div>
+      <div class="cardBody">
+        <div>
+          <span style="font-size:11px;font-weight:800;color:var(--primary);text-transform:uppercase">${d.cat}</span>
+          <h3 class="cardTitle">${d.name}</h3>
+          ${d.desc ? `<p class="cardDesc">${d.desc}</p>` : ''}
+        </div>
+        <div class="cardBottom">
+          <span class="price">${money(d.price)}</span>
+          <button class="btn btnPrimary" style="padding:7px 12px;font-size:12px" onclick="addToCart('${d.id}')">+ Ajouter</button>
+        </div>
+      </div>
+    </article>
+  `).join("");
+
+  updateCartBadges();
+}
+
+function setCategory(cat){
+  currentCategory = cat;
+  renderClientMenu();
+}
+
+function addToCart(id){
+  const d = dishes.find(x=>String(x.id)===String(id));
+  if(!d) return;
+  const exist = cart.find(x=>String(x.id)===String(id));
+  if(exist){ exist.qty++; }
+  else { cart.push({id: d.id, qty:1}); }
+  saveStorage("dfc_cart", cart);
+  updateCartBadges();
+  toast(`${d.name} ajouté au panier ! 🛒`);
+}
+
+function updateCartBadges(){
+  const count = cart.reduce((s,i)=>s+i.qty, 0);
+  const b1 = document.getElementById("cartCountBadge");
+  const b2 = document.getElementById("cartCountBadge2");
+  const b3 = document.getElementById("mbCartCountBadge");
+  if(b1) b1.textContent = count;
+  if(b2) b2.textContent = count;
+  if(b3) b3.textContent = count;
+}
+
+function renderCart(){
+  const box = document.getElementById("cartList");
+  if(!cart.length){
+    box.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Votre panier est vide.</div>';
+    document.getElementById("cartTotalPrice").textContent = "0 FCFA";
+    return;
+  }
+
+  let total = 0;
+  box.innerHTML = cart.map(item=>{
+    const d = dishes.find(x=>String(x.id)===String(item.id));
+    if(!d) return '';
+    const sub = d.price * item.qty;
+    total += sub;
+    return `
+      <div class="cartItem">
+        <div>
+          <b>${d.name}</b><br>
+          <small style="color:var(--muted)">${money(d.price)} × ${item.qty} = ${money(sub)}</small>
+        </div>
+        <div class="cartQty">
+          <button class="qtyBtn" onclick="changeQty('${d.id}', -1)">−</button>
+          <b>${item.qty}</b>
+          <button class="qtyBtn" onclick="changeQty('${d.id}', 1)">+</button>
+          <button style="background:none;color:var(--red);font-weight:900;margin-left:8px" onclick="removeCart('${d.id}')">✕</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  document.getElementById("cartTotalPrice").textContent = money(total);
+}
+
+function changeQty(id, delta){
+  const item = cart.find(x=>String(x.id)===String(id));
+  if(!item) return;
+  item.qty += delta;
+  if(item.qty <= 0) cart = cart.filter(x=>String(x.id)!==String(id));
+  saveStorage("dfc_cart", cart);
+  renderCart();
+  updateCartBadges();
+}
+
+function removeCart(id){
+  cart = cart.filter(x=>String(x.id)!==String(id));
+  saveStorage("dfc_cart", cart);
+  renderCart();
+  updateCartBadges();
+}
+
+function openCheckout(){
+  if(!cart.length) return toast("Votre panier est vide.");
+  closeModal('cartModal');
+  openModal('checkoutModal');
+}
+
+async function submitClientOrder(e){
+  e.preventDefault();
+  if(!supabaseClient) return toast("Connexion Supabase indisponible. Vérifie l'URL et la clé API.");
+  if(!cart.length) return toast("Votre panier est vide.");
+  const name=document.getElementById("cName").value.trim();
+  const phone=document.getElementById("cPhone").value.trim();
+  const type=document.getElementById("cType").value;
+  const pay=document.getElementById("cPay").value;
+  const note=document.getElementById("cNote").value.trim();
+  const items=cart.map(item=>{
+    const d=dishes.find(x=>String(x.id)===String(item.id));
+    return d ? {id:d.id,name:d.name,qty:Number(item.qty||1),price:Number(d.price||0)} : null;
+  }).filter(Boolean);
+  if(!items.length) return toast("Le panier ne contient aucun plat disponible.");
+  const total=items.reduce((sum,it)=>sum+it.price*it.qty,0);
+  const orderNumber="VK-"+Date.now().toString().slice(-8);
+  const base={order_number:orderNumber,customer_name:name,customer_phone:phone,order_type:type,payment_method:pay,note,items,total,status:"Nouvelle"};
+  let saved=null, lastError=null;
+  const variants=[
+    base,
+    {customer_name:name,customer_phone:phone,order_type:type,payment_method:pay,note,items,total,status:"Nouvelle"},
+    {customer_name:name,customer_phone:phone,type,pay,note,items,total,status:"Nouvelle"}
+  ];
+  for(const payload of variants){
+    // Insert without RETURNING: public clients must not read back private order rows.
+    const r=await supabaseClient.from("orders").insert(payload);
+    if(!r.error){saved={...payload,order_number:payload.order_number||orderNumber};break;}
+    lastError=r.error;
+    // Only try another column shape for schema/column errors; don't hide RLS or network errors.
+    if(!/column .* does not exist|schema cache|could not find .* column|unknown field|order_number/i.test(r.error.message||"")) break;
+  }
+  if(!saved){
+    console.error("Enregistrement commande Supabase:",lastError);
+    return toast("Commande non enregistrée : "+(lastError?.message||"erreur Supabase"));
+  }
+  // Optional line items table: the full item list is also stored in orders.items when that column exists.
+  const orderDbId=saved.id;
+  if(orderDbId){
+    const lineRows=items.map(it=>({order_id:orderDbId,item_name:it.name,dish_id:it.id,quantity:it.qty,unit_price:it.price,line_total:it.qty*it.price}));
+    let lineError=null, lineSaved=false;
+    for(const payload of [
+      lineRows,
+      items.map(it=>({order_id:orderDbId,dish_id:it.id,quantity:it.qty,price:it.price})),
+      items.map(it=>({order_id:orderDbId,item_name:it.name,qty:it.qty,price:it.price}))
+    ]){
+      const r=await supabaseClient.from("orders_items").insert(payload);
+      if(!r.error){lineSaved=true;break;}
+      lineError=r.error;
+      if(!/column .* does not exist|schema cache|could not find .* column|unknown field|relation .* does not exist/i.test(r.error.message||"")) break;
+    }
+    if(!lineSaved && lineError && !/relation .* does not exist|could not find the table|schema cache/i.test(lineError.message||"")){
+      console.warn("Les lignes détaillées de commande n'ont pas été ajoutées; les articles sont conservés dans orders.items si cette colonne existe.",lineError);
+    }
+  }
+  orders.unshift(mapOrderRow({...saved,items:saved.items||items}));
+  cart=[];saveStorage("dfc_cart",cart);updateCartBadges();
+  closeModal("checkoutModal");e.target.reset();
+  renderAdmin();
+  toast("Commande "+(saved.order_number||orderNumber)+" enregistrée dans Supabase !");
+  try{await refreshSupabaseData(false)}catch(_){}
+  const waMsg=`*COMMANDE VAN KA RESTAU (${saved.order_number||orderNumber})*
+
+👤 *Client :* ${name}
+📞 *Téléphone :* ${phone}
+🛵 *Service :* ${type}
+💳 *Paiement :* ${pay}
+${note?`📍 *Note :* ${note}
+`:""}
+*PLATS :*
+${items.map(i=>`• ${i.qty} × ${i.name} (${money(i.price*i.qty)})`).join("\n")}
+
+💰 *TOTAL : ${money(total)}*`;
+  if(confirm("Commande enregistrée dans la base de données. Voulez-vous ouvrir WhatsApp pour transmettre les détails au restaurant (+223 93 07 67 65) ?")){
+    // Redirection dans le même onglet : évite le blocage des fenêtres pop-up sur Android.
+    window.location.href="https://wa.me/22393076765?text="+encodeURIComponent(waMsg);
+  }
+}
+
+async function submitClientBooking(e){
+  e.preventDefault();
+  if(!supabaseClient) return toast("Connexion Supabase indisponible. Vérifie l'URL et la clé API.");
+  const name=document.getElementById("bName").value.trim();
+  const phone=document.getElementById("bPhone").value.trim();
+  const date=document.getElementById("bDate").value;
+  const time=document.getElementById("bTime").value;
+  const people=Number(document.getElementById("bPeople").value||1);
+  const note=document.getElementById("bNote").value.trim();
+  const reservationNumber="RES-"+Date.now().toString().slice(-8);
+  const candidates=[
+    {reservation_number:reservationNumber,customer_name:name,customer_phone:phone,reservation_date:date,reservation_time:time,people,note,status:"En attente"},
+    {customer_name:name,customer_phone:phone,reservation_date:date,reservation_time:time,people,note,status:"En attente"},
+    {customer_name:name,customer_phone:phone,date,time,people,note,status:"En attente"},
+    {name,phone,date,time,people,note,status:"En attente"}
+  ];
+  let saved=null,lastError=null,tableUsed=null;
+  for(const table of ["reservation","reservations"]){
+    for(const payload of candidates){
+      // Insert without RETURNING: clients should not need SELECT permission for reservations.
+      const r=await supabaseClient.from(table).insert(payload);
+      if(!r.error){saved={...payload};tableUsed=table;break;}
+      lastError=r.error;
+      if(/relation .* does not exist|could not find the table|schema cache.*table/i.test(r.error.message||"")) break;
+      if(!/column .* does not exist|schema cache|could not find .* column|unknown field|reservation_number/i.test(r.error.message||"")) break;
+    }
+    if(saved)break;
+    if(lastError && !/relation .* does not exist|could not find the table|schema cache.*table/i.test(lastError.message||"")) break;
+  }
+  if(!saved){
+    console.error("Enregistrement réservation Supabase:",lastError);
+    return toast("Réservation non enregistrée : "+(lastError?.message||"vérifie la table reservation et ses autorisations"));
+  }
+  bookings.unshift(mapBookingRow(saved));
+  closeModal("bookingModal");e.target.reset();
+  toast("Réservation enregistrée dans Supabase !");
+  await refreshSupabaseData(false);
+  const waMsg=`*RÉSERVATION VAN KA RESTAU (${saved.reservation_number||saved.id||reservationNumber})*
+
+👤 *Nom :* ${name}
+📞 *Téléphone :* ${phone}
+📅 *Date :* ${date} à ${time}
+👥 *Personnes :* ${people}
+${note?`💬 *Note :* ${note}`:""}`;
+  if(confirm("Réservation enregistrée dans la base de données. Voulez-vous ouvrir WhatsApp pour transmettre les détails au restaurant (+223 93 07 67 65) ?")){
+    // Redirection dans le même onglet : évite le blocage des fenêtres pop-up sur Android.
+    window.location.href="https://wa.me/22393076765?text="+encodeURIComponent(waMsg);
+  }
+}
+
+async function handleLoginSubmit(e){
+  e.preventDefault();
+  if(!supabaseClient) return toast("Supabase n'est pas configuré. Vérifie l'URL et la clé publishable.");
+  const email=document.getElementById("loginUser").value.trim().toLowerCase();
+  const password=document.getElementById("loginPass").value;
+  const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+  if(error){console.error("Connexion Supabase:",error);return toast("Connexion impossible : "+error.message);}
+  const user=data.user;
+  const p=await supabaseClient.from("profiles").select("*").eq("id",user.id).maybeSingle();
+  if(p.error || !p.data){
+    await supabaseClient.auth.signOut();
+    return toast("Profil du gérant introuvable dans la table profiles.");
+  }
+  const role=String(p.data.role||"").trim().toLowerCase();
+  if(p.data.active===false || !["gérant","gerant","manager"].includes(role)){
+    await supabaseClient.auth.signOut();
+    return toast("Ce compte n'a pas le rôle Gérant dans profiles.");
+  }
+  isManager=true;
+  closeModal("loginModal");
+  document.getElementById("loginUser").value="";
+  document.getElementById("loginPass").value="";
+  await refreshSupabaseData(true);
+  startSupabaseRealtime();
+  showView("admin");
+  toast("Connexion Gérant réussie.");
+}
+
+function adminLogout(){
+  if(supabaseClient) supabaseClient.auth.signOut().catch(()=>{});
+  isManager=false;
+  saveStorage("dfc_is_manager",false);
+  if(vkRealtimeChannel && supabaseClient){supabaseClient.removeChannel(vkRealtimeChannel);vkRealtimeChannel=null;}
+  showView("home");
+  toast("Déconnexion réussie.");
+}
+
+let currentAdminTab = 'dishes';
+function switchAdminTab(tab, btn){
+  currentAdminTab = tab;
+  document.querySelectorAll(".adminTabBtn").forEach(b=>b.classList.remove("active"));
+  if(btn) btn.classList.add("active");
+  renderAdmin();
+}
+
+function viewOrderDetails(id){
+  const o = orders.find(x=>x.id===id);
+  if(!o) return;
+  document.getElementById("odId").textContent = o.id;
+  const itemsHtml = o.items.map(i=>`
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee">
+      <span><strong>${i.qty}×</strong> ${i.name}</span>
+      <b>${money(i.price * i.qty)}</b>
+    </div>
+  `).join("");
+
+  document.getElementById("odContent").innerHTML = `
+    <div style="background:#fdf6ed;padding:12px;border-radius:12px;margin-bottom:12px;border:1px solid #eadbca">
+      <div>👤 <strong>Client :</strong> ${o.name}</div>
+      <div>📞 <strong>Téléphone :</strong> <a href="tel:${o.phone}" style="color:var(--primary);font-weight:800">${o.phone}</a></div>
+      <div>🛵 <strong>Service :</strong> ${o.type}</div>
+      <div>💳 <strong>Paiement :</strong> ${o.pay}</div>
+      <div>📅 <strong>Date :</strong> ${o.date}</div>
+      ${o.note ? `<div style="margin-top:6px;padding-top:6px;border-top:1px dashed #d8c2b0">📍 <strong>Adresse / Note :</strong> ${o.note}</div>` : ''}
+    </div>
+
+    <h4 style="margin-bottom:6px">Plats commandés :</h4>
+    <div style="margin-bottom:12px">${itemsHtml}</div>
+    <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:900;padding:8px 0;border-top:2px solid #1d1714;margin-bottom:12px">
+      <span>TOTAL</span>
+      <span style="color:var(--primary)">${money(o.total)}</span>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label style="font-weight:800;display:block;margin-bottom:4px">Changer le statut :</label>
+      <select id="modalOrderStatus" style="width:100%;padding:9px;border-radius:10px;border:1px solid #ccc;font-weight:700" onchange="updateOrderStatus('${o.id}', this.value)">
+        ${["Nouvelle","Confirmée","En préparation","Prête","Livrée","Annulée"].map(s=>`
+          <option value="${s}" ${o.status===s?'selected':''}>${s}</option>
+        `).join("")}
+      </select>
+    </div>
+
+    <div style="display:flex;gap:8px">
+      <a href="https://wa.me/${o.phone.replace(/[^0-9]/g,'')}" target="_blank" class="btn btnGold" style="flex:1;justify-content:center">
+        💬 WhatsApp
+      </a>
+      <a href="tel:${o.phone}" class="btn btnLight">
+        📞 Appeler
+      </a>
+    </div>
+  `;
+  openModal('orderDetailModal');
+}
+
+async function updateOrderStatus(id,newStatus){
+  const o=orders.find(x=>String(x.id)===String(id)||String(x.dbId)===String(id)); if(!o)return;
+  const r=await supabaseClient.from("orders").update({status:newStatus}).eq("id",o.dbId);
+  if(r.error){console.error(r.error);return toast("Statut non enregistré : "+r.error.message);}
+  o.status=newStatus;renderAdmin();toast("Statut de commande enregistré.");
+}
+
+function viewBookingDetails(id){
+  const b = bookings.find(x=>x.id===id);
+  if(!b) return;
+  document.getElementById("bdId").textContent = b.id;
+  document.getElementById("bdContent").innerHTML = `
+    <div style="background:#fdf6ed;padding:12px;border-radius:12px;margin-bottom:12px;border:1px solid #eadbca">
+      <div>👤 <strong>Nom :</strong> ${b.name}</div>
+      <div>📞 <strong>Téléphone :</strong> <a href="tel:${b.phone}" style="color:var(--primary);font-weight:800">${b.phone}</a></div>
+      <div>📅 <strong>Date :</strong> ${b.date} à ${b.time}</div>
+      <div>👥 <strong>Couverts :</strong> ${b.people} personne(s)</div>
+      ${b.note ? `<div style="margin-top:6px;padding-top:6px;border-top:1px dashed #d8c2b0">💬 <strong>Note :</strong> ${b.note}</div>` : ''}
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label style="font-weight:800;display:block;margin-bottom:4px">Statut réservation :</label>
+      <select style="width:100%;padding:9px;border-radius:10px;border:1px solid #ccc;font-weight:700" onchange="updateBookingStatus('${b.id}', this.value)">
+        ${["En attente","Confirmée","Terminée","Annulée"].map(s=>`
+          <option value="${s}" ${b.status===s?'selected':''}>${s}</option>
+        `).join("")}
+      </select>
+    </div>
+
+    <div style="display:flex;gap:8px">
+      <a href="https://wa.me/${b.phone.replace(/[^0-9]/g,'')}" target="_blank" class="btn btnGold" style="flex:1;justify-content:center">
+        💬 Écrire sur WhatsApp
+      </a>
+      <a href="tel:${b.phone}" class="btn btnLight">
+        📞 Appeler
+      </a>
+    </div>
+  `;
+  openModal('bookingDetailModal');
+}
+
+async function updateBookingStatus(id,newStatus){
+  const b=bookings.find(x=>String(x.id)===String(id)||String(x.dbId)===String(id)); if(!b)return;
+  const r=await supabaseClient.from(activeReservationTable).update({status:newStatus}).eq("id",b.dbId);
+  if(r.error){console.error(r.error);return toast("Statut de réservation non enregistré : "+r.error.message);}
+  b.status=newStatus;renderAdmin();toast("Statut de réservation enregistré.");
+}
+
+// Suppression sécurisée des commandes et réservations depuis le tableau de bord Gérant.
+async function deleteOrder(id){
+  if(!isManager || !supabaseClient){
+    return toast("Accès Gérant requis.");
+  }
+
+  const o=orders.find(x=>String(x.dbId)===String(id)||String(x.id)===String(id));
+  if(!o || o.dbId===undefined || o.dbId===null){
+    return toast("Commande introuvable dans Supabase.");
+  }
+
+  if(!confirm("Supprimer définitivement la commande "+o.id+" de "+o.name+" ?\n\nLe chiffre d'affaires sera recalculé automatiquement.")) return;
+
+  // Supprimer d'abord les articles liés, si la table existe.
+  let lineTableFound=false;
+  for(const table of ["orders_items","order_items"]){
+    const child=await supabaseClient.from(table).delete().eq("order_id",o.dbId);
+    if(!child.error){
+      lineTableFound=true;
+      break;
+    }
+    const message=child.error.message||"";
+    if(/relation .* does not exist|could not find the table|schema cache/i.test(message)) continue;
+    console.error("Suppression des articles de commande :",child.error);
+    return toast("Impossible de supprimer les articles : "+message);
+  }
+
+  const result=await supabaseClient.from("orders").delete().eq("id",o.dbId);
+  if(result.error){
+    console.error("Suppression commande :",result.error);
+    return toast("Commande non supprimée : "+result.error.message);
+  }
+
+  try{
+    await loadOrdersFromSupabase();
+  }catch(error){
+    console.error("Actualisation commandes :",error);
+    orders=orders.filter(x=>String(x.dbId)!==String(o.dbId));
+  }
+  renderAdmin();
+  toast("Commande supprimée. Chiffre d'affaires recalculé.");
+}
+
+async function deleteBooking(id){
+  if(!isManager || !supabaseClient){
+    return toast("Accès Gérant requis.");
+  }
+
+  const b=bookings.find(x=>String(x.dbId)===String(id)||String(x.id)===String(id));
+  if(!b || b.dbId===undefined || b.dbId===null){
+    return toast("Réservation introuvable dans Supabase.");
+  }
+
+  if(!confirm("Supprimer définitivement la réservation "+b.id+" de "+b.name+" ?")) return;
+
+  const result=await supabaseClient.from(activeReservationTable).delete().eq("id",b.dbId);
+  if(result.error){
+    console.error("Suppression réservation :",result.error);
+    return toast("Réservation non supprimée : "+result.error.message);
+  }
+
+  try{
+    await loadBookingsFromSupabase();
+  }catch(error){
+    console.error("Actualisation réservations :",error);
+    bookings=bookings.filter(x=>String(x.dbId)!==String(b.dbId));
+  }
+  renderAdmin();
+  toast("Réservation supprimée.");
+}
+
+function renderAdmin(){
+  document.getElementById("statOrders").textContent = orders.length;
+  document.getElementById("statBookings").textContent = bookings.length;
+  document.getElementById("statDishes").textContent = dishes.length;
+  const rev = orders.filter(o=>o.status!=='Annulée').reduce((s,o)=>s+o.total, 0);
+  document.getElementById("statRevenue").textContent = money(rev);
+
+  const box = document.getElementById("adminTabContent");
+
+  if(currentAdminTab === 'dishes'){
+    box.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h3>Plats publiés (${dishes.length})</h3>
+        <button class="btn btnPrimary" onclick="openDishModal()">+ Nouveau Plat</button>
+      </div>
+      <div>
+        ${dishes.map(d=>`
+          <div class="adminRow">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div class="adminDishThumb">
+                ${d.photo ? `<img src="${d.photo}" alt="${d.name}">` : (d.emoji||'🍽️')}
+              </div>
+              <div>
+                <b>${d.name}</b><br>
+                <small style="color:var(--muted)">${d.cat} • ${money(d.price)} • ${d.available?'<span style="color:var(--green);font-weight:900">En ligne</span>':'<span style="color:var(--red);font-weight:900">Masqué</span>'}</small>
+              </div>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button class="btn btnLight" style="padding:6px 10px;font-size:12px" onclick="editDish('${d.id}')">Modifier</button>
+              <button class="btn btnLight" style="padding:6px 10px;font-size:12px" onclick="toggleDish('${d.id}')">${d.available?'Masquer':'Afficher'}</button>
+              <button class="btn btnDanger" style="padding:6px 10px;font-size:12px" onclick="deleteDish('${d.id}')">Supprimer</button>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  } else if(currentAdminTab === 'orders'){
+    box.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h3>Commandes Reçues (${orders.length})</h3>
+        <small style="color:var(--muted)">Cliquez sur une commande pour afficher tous ses détails</small>
+      </div>
+      ${orders.length ? orders.map(o=>`
+        <div class="adminRow" style="cursor:pointer" onclick="viewOrderDetails('${o.id}')">
+          <div>
+            <b>${o.id} — ${o.name}</b><br>
+            <small style="color:var(--muted)">📞 ${o.phone} • ${o.type} • <b>${money(o.total)}</b> • <span style="font-weight:800;color:var(--primary)">${o.status}</span></small>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button class="btn btnPrimary" style="padding:6px 12px;font-size:12px" onclick="event.stopPropagation();viewOrderDetails('${o.id}')">
+              👁️ Afficher informations
+            </button>
+            <button class="btn btnDanger" style="padding:6px 12px;font-size:12px" onclick="event.stopPropagation();deleteOrder('${o.dbId}')">
+              🗑️ Supprimer
+            </button>
+          </div>
+        </div>
+      `).join("") : '<div style="text-align:center;padding:30px;color:var(--muted)">Aucune commande pour le moment.</div>'}
+    `;
+  } else if(currentAdminTab === 'bookings'){
+    box.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h3>Réservations de tables (${bookings.length})</h3>
+      </div>
+      ${bookings.length ? bookings.map(b=>`
+        <div class="adminRow" style="cursor:pointer" onclick="viewBookingDetails('${b.id}')">
+          <div>
+            <b>${b.id} — ${b.name}</b><br>
+            <small style="color:var(--muted)">📅 ${b.date} à ${b.time} • 👥 <b>${b.people} pers.</b> • 📞 ${b.phone}</small>
+            ${b.note ? `<br><small style="font-style:italic">Note : ${b.note}</small>` : ''}
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+            <button class="btn btnLight" style="padding:6px 10px;font-size:12px" onclick="event.stopPropagation();viewBookingDetails('${b.id}')">
+              Détails
+            </button>
+            <a href="https://wa.me/${b.phone.replace(/[^0-9]/g,'')}" target="_blank" class="btn btnGold" style="padding:6px 10px;font-size:12px" onclick="event.stopPropagation()">💬 WhatsApp</a>
+            <button class="btn btnDanger" style="padding:6px 10px;font-size:12px" onclick="event.stopPropagation();deleteBooking('${b.dbId}')">
+              🗑️ Supprimer
+            </button>
+          </div>
+        </div>
+      `).join("") : '<div style="text-align:center;padding:30px;color:var(--muted)">Aucune réservation pour le moment.</div>'}
+    `;
+  } else if(currentAdminTab === 'reports'){
+    const validOrders = orders.filter(o=>o.status!=='Annulée');
+    const totalRev = validOrders.reduce((s,o)=>s+o.total, 0);
+    const avgCart = validOrders.length ? Math.round(totalRev / validOrders.length) : 0;
+    const totalGuests = bookings.reduce((s,b)=>s+(b.status!=='Annulée'?Number(b.people):0), 0);
+
+    const payStats = {};
+    validOrders.forEach(o=>{ payStats[o.pay] = (payStats[o.pay]||0) + o.total; });
+
+    const typeStats = {};
+    validOrders.forEach(o=>{ typeStats[o.type] = (typeStats[o.type]||0) + 1; });
+
+    const dishStats = {};
+    validOrders.forEach(o=>{
+      (o.items||[]).forEach(it=>{
+        if(!dishStats[it.name]) dishStats[it.name] = {count:0, total:0};
+        dishStats[it.name].count += it.qty;
+        dishStats[it.name].total += it.price * it.qty;
+      });
+    });
+    const sortedDishes = Object.entries(dishStats).sort((a,b)=>b[1].count - a[1].count);
+    const maxCount = sortedDishes[0] ? sortedDishes[0][1].count : 1;
+
+    box.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h3>📈 Rapport & Calculs Financiers</h3>
+        <button class="btn btnLight" onclick="window.print()">🖨️ Imprimer</button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:16px">
+        <div style="background:#fff;border:1px solid #eadbca;padding:14px;border-radius:14px">
+          <small style="color:var(--muted);font-weight:800">CHIFFRE D'AFFAIRES</small>
+          <div style="font-size:22px;font-weight:900;color:var(--primary);margin-top:2px">${money(totalRev)}</div>
+          <small>${validOrders.length} commande(s) confirmée(s)</small>
+        </div>
+        <div style="background:#fff;border:1px solid #eadbca;padding:14px;border-radius:14px">
+          <small style="color:var(--muted);font-weight:800">PANIER MOYEN</small>
+          <div style="font-size:22px;font-weight:900;color:var(--green);margin-top:2px">${money(avgCart)}</div>
+          <small>Par commande client</small>
+        </div>
+        <div style="background:#fff;border:1px solid #eadbca;padding:14px;border-radius:14px">
+          <small style="color:var(--muted);font-weight:800">TOTAL COUVERTS RÉSERVÉS</small>
+          <div style="font-size:22px;font-weight:900;color:var(--gold);margin-top:2px">${totalGuests} personnes</div>
+          <small>Sur ${bookings.length} réservation(s)</small>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div class="reportBox">
+          <h4 style="margin-bottom:10px">💳 Répartition par Paiement</h4>
+          ${Object.keys(payStats).length ? Object.entries(payStats).map(([k,v])=>`
+            <div class="reportRow">
+              <span>${k}</span>
+              <b>${money(v)}</b>
+            </div>
+          `).join("") : '<div style="color:var(--muted);font-size:12px">Aucune donnée</div>'}
+        </div>
+
+        <div class="reportBox">
+          <h4 style="margin-bottom:10px">🛵 Répartition par Service</h4>
+          ${Object.keys(typeStats).length ? Object.entries(typeStats).map(([k,v])=>`
+            <div class="reportRow">
+              <span>${k}</span>
+              <b>${v} commande(s)</b>
+            </div>
+          `).join("") : '<div style="color:var(--muted);font-size:12px">Aucune donnée</div>'}
+        </div>
+      </div>
+
+      <div class="reportBox">
+        <h4 style="margin-bottom:10px">🏆 Classement des Plats les Plus Vendus</h4>
+        ${sortedDishes.length ? sortedDishes.map(([name, data])=>`
+          <div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800">
+              <span>${name}</span>
+              <span>${data.count} vendus (${money(data.total)})</span>
+            </div>
+            <div class="progressBar">
+              <div class="progressFill" style="width:${Math.round(data.count/maxCount*100)}%"></div>
+            </div>
+          </div>
+        `).join("") : '<div style="color:var(--muted);font-size:12px">Pas encore de plats vendus.</div>'}
+      </div>
+    `;
+  }
+}
+
+function openDishModal(){
+  document.getElementById("editDishId").value = "";
+  document.getElementById("dishName").value = "";
+  document.getElementById("dishPrice").value = "";
+  document.getElementById("dishCat").value = "Plats maliens";
+  document.getElementById("dishDesc").value = "";
+  document.getElementById("dishFile").value = "";
+  document.getElementById("dishPreviewBox").style.display = "none";
+  currentUploadedPhotoBase64 = "";
+  document.getElementById("dishModalTitle").textContent = "Ajouter un Plat au Menu";
+  openModal('dishModal');
+}
+
+function editDish(id){
+  const d = dishes.find(x=>String(x.id)===String(id));
+  if(!d) return;
+  document.getElementById("editDishId").value = d.id;
+  document.getElementById("dishName").value = d.name;
+  document.getElementById("dishPrice").value = d.price;
+  document.getElementById("dishCat").value = d.cat;
+  document.getElementById("dishDesc").value = d.desc || "";
+  document.getElementById("dishFile").value = "";
+  currentUploadedPhotoBase64 = d.photo || "";
+
+  if(d.photo){
+    document.getElementById("dishPreviewImg").src = d.photo;
+    document.getElementById("dishPreviewBox").style.display = "inline-block";
+  } else {
+    document.getElementById("dishPreviewBox").style.display = "none";
+  }
+
+  document.getElementById("dishModalTitle").textContent = "Modifier le Plat";
+  openModal('dishModal');
+}
+
+function removeDishPhotoPreview(){
+  currentUploadedPhotoBase64 = "";
+  document.getElementById("dishFile").value = "";
+  document.getElementById("dishPreviewBox").style.display = "none";
+}
+
+function previewDishFile(e){
+  const f = e.target.files && e.target.files[0];
+  if(!f) return;
+  if(!f.type.startsWith("image/")) return toast("Veuillez sélectionner une photo valide.");
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const maxDim = 800;
+      let width = img.width;
+      let height = img.height;
+      if(width > maxDim || height > maxDim){
+        if(width > height){ height = Math.round((height*maxDim)/width); width = maxDim; }
+        else { width = Math.round((width*maxDim)/height); height = maxDim; }
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+      currentUploadedPhotoBase64 = canvas.toDataURL("image/jpeg", 0.82);
+      document.getElementById("dishPreviewImg").src = currentUploadedPhotoBase64;
+      document.getElementById("dishPreviewBox").style.display = "inline-block";
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(f);
+}
+
+async function saveDishForm(e){
+  e.preventDefault();
+  if(!isManager || !supabaseClient) return toast("Connecte-toi avec le compte Gérant.");
+  const editId=document.getElementById("editDishId").value;
+  const name=document.getElementById("dishName").value.trim();
+  const price=Number(document.getElementById("dishPrice").value);
+  const cat=document.getElementById("dishCat").value.trim()||"Plats maliens";
+  const desc=document.getElementById("dishDesc").value.trim();
+  const file=document.getElementById("dishFile").files?.[0];
+  if(!name || !Number.isFinite(price) || price<0) return toast("Nom et prix valides obligatoires.");
+  try{
+    const old=editId?dishes.find(x=>String(x.id)===String(editId)):null;
+    let photo=old?.photo||"";
+    if(file) photo=await uploadDishPhoto(file);
+    const payload={name,category:cat,price,description:desc,photo_url:photo||null,available:old?old.available:true};
+    let r;
+    if(editId){
+      r=await supabaseClient.from(activeDishTable).update({...payload,updated_at:new Date().toISOString()}).eq("id",editId).select("*").single();
+    }else{
+      r=await supabaseClient.from(activeDishTable).insert(payload).select("*").single();
+    }
+    if(r.error){
+      // If updated_at is absent in the actual table, retry the edit without that optional column.
+      if(editId && /updated_at|column .* does not exist|schema cache/i.test(r.error.message||"")){
+        r=await supabaseClient.from(activeDishTable).update(payload).eq("id",editId).select("*").single();
+      }
+    }
+    if(r.error) throw r.error;
+    closeModal("dishModal");
+    currentUploadedPhotoBase64="";
+    await loadMenuFromSupabase();
+    renderAdmin();
+    toast(editId?"Plat modifié et synchronisé.":"Plat ajouté et publié pour tous les clients.");
+  }catch(err){
+    console.error("Enregistrement plat:",err);
+    toast("Plat non enregistré : "+(err.message||"vérifie les autorisations Supabase"));
+  }
+}
+
+async function toggleDish(id){
+  if(!isManager || !supabaseClient) return toast("Accès Gérant requis.");
+  const d=dishes.find(x=>String(x.id)===String(id)); if(!d)return;
+  const next=!d.available;
+  const r=await supabaseClient.from(activeDishTable).update({available:next}).eq("id",d.id);
+  if(r.error){console.error(r.error);return toast("Modification impossible : "+r.error.message);}
+  await loadMenuFromSupabase();renderAdmin();
+  toast(next?`Plat "${d.name}" publié pour les clients.`:`Plat "${d.name}" masqué.`);
+}
+
+async function deleteDish(id){
+  if(!isManager || !supabaseClient) return toast("Accès Gérant requis.");
+  const d=dishes.find(x=>String(x.id)===String(id)); if(!d)return;
+  if(!confirm(`Supprimer définitivement le plat "${d.name}" ? Il sera retiré du menu partagé.`))return;
+  const r=await supabaseClient.from(activeDishTable).delete().eq("id",d.id);
+  if(r.error){console.error(r.error);return toast("Suppression impossible : "+r.error.message);}
+  await loadMenuFromSupabase();renderAdmin();
+  toast(`Plat "${d.name}" supprimé de Supabase.`);
+}
+
+
+window.addEventListener("DOMContentLoaded", async () => {
+  updateCartBadges();
+  renderClientMenu();
+  if(!supabaseClient){
+    toast("Configuration Supabase à compléter : URL du projet + clé publishable.");
+    return;
+  }
+  await refreshSupabaseData(true);
+  startSupabaseRealtime();
+  // Actualisation de secours si Realtime n'est pas activé dans Supabase.
+  setInterval(()=>refreshSupabaseData(false),20000);
+  const {data}=await supabaseClient.auth.getSession();
+  if(data?.session?.user){
+    const p=await supabaseClient.from("profiles").select("*").eq("id",data.session.user.id).maybeSingle();
+    const role=String(p.data?.role||"").trim().toLowerCase();
+    if(!p.error && p.data && p.data.active!==false && ["gérant","gerant","manager"].includes(role)){
+      isManager=true;
+      await refreshSupabaseData(false);
+      showView("admin");
+    }else{
+      await supabaseClient.auth.signOut();
+    }
+  }
+});
+</script>
+
+</body>
+  </html>
