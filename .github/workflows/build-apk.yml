@@ -28,6 +28,8 @@ jobs:
 
       - name: Installer Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
 
       - name: Installer les dependances
         run: npm ci
