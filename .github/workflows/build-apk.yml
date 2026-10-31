@@ -1,3 +1,4 @@
+
 name: Build DUGUKLA FOOD CLUB APK
 
 on:
@@ -8,35 +9,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Recuperer le projet Android
         uses: actions/checkout@v4
+        with:
+          ref: apk-android
 
-      - name: Setup Java
+      - name: Installer Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
 
-      - name: Setup Node
+      - name: Installer Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: npm
 
-      - name: Setup Android SDK
+      - name: Installer Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install dependencies
+      - name: Installer les dependances
         run: npm ci
 
-      - name: Sync Capacitor
+      - name: Synchroniser Capacitor
         run: npx cap sync android
 
-      - name: Build APK
+      - name: Construire APK
         working-directory: android
         run: chmod +x gradlew && ./gradlew assembleDebug
 
-      - name: Upload APK
+      - name: Publier le fichier APK
         uses: actions/upload-artifact@v4
         with:
           name: DUGUKLA-FOOD-CLUB-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
